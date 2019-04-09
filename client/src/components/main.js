@@ -25,13 +25,32 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 
+import WarningIcon from '@material-ui/icons/Warning';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import InfoIcon from '@material-ui/icons/Info';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
+import classNames from 'classnames';
+import amber from "@material-ui/core/colors/amber";
+import green from "@material-ui/core/colors/green";
+import Snackbar from "@material-ui/core/Snackbar";
+import SnackbarContent from "@material-ui/core/SnackbarContent";
+
 import getWeb3 from "../utils/getWeb3";
 import Transcript from "../contracts/Transcript.json";
+
+
+const variantIcon = {
+  success: CheckCircleIcon,
+  warning: WarningIcon,
+  error: ErrorIcon,
+  info: InfoIcon,
+};
 
 // table
 const CustomTableCell = withStyles(theme => ({
@@ -107,10 +126,39 @@ const styles = theme => ({
 
   backButton: {
     marginRight: theme.spacing.unit
-  }
+  },
+
+  //snackbar
+  margin: {
+    margin: theme.spacing.unit,
+  },
 });
 
-//table
+const styles1 = theme => ({
+  success: {
+    backgroundColor: green[600]
+  },
+  error: {
+    backgroundColor: theme.palette.error.dark
+  },
+  info: {
+    backgroundColor: theme.palette.primary.dark
+  },
+  warning: {
+    backgroundColor: amber[700]
+  },
+  icon: {
+    fontSize: 20
+  },
+  iconVariant: {
+    opacity: 0.9,
+    marginRight: theme.spacing.unit
+  },
+  message: {
+    display: "flex",
+    alignItems: "center"
+  }
+});
 
 //stepper
 function getSteps() {
@@ -132,6 +180,38 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
+function MySnackbarContent(props) {
+  const { classes, className, message, onClose, variant, ...other } = props;
+  const Icon = variantIcon[variant];
+
+  return (
+    <SnackbarContent
+      className={classNames(classes[variant], className)}
+      aria-describedby="client-snackbar"
+      message={
+        <span id="client-snackbar" className={classes.message}>
+          <Icon className={classNames(classes.icon, classes.iconVariant)} />
+          {message}
+        </span>
+      }
+      action={[
+        <IconButton
+          key="close"
+          aria-label="Close"
+          color="inherit"
+          className={classes.close}
+          onClick={onClose}
+        >
+          <CloseIcon className={classes.icon} />
+        </IconButton>,
+      ]}
+      {...other}
+    />
+  );
+}
+
+const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
+
 //---------------------------------------------------- CLASS-----------------------------------
 
 class Main extends React.Component {
@@ -141,6 +221,7 @@ class Main extends React.Component {
       open1: false,
       open2: false,
       open3: false,
+      opensnack: false,
       activeStep: 0,
 
       web3: null,
@@ -150,6 +231,9 @@ class Main extends React.Component {
       courseId: null,
       courseName: null,
       courseCredits: 0,
+      editCourseId: null,
+      editCourseName: null,
+      editCourseCredits: 0,
 
       course_rows: [],
       count: 0
@@ -194,6 +278,17 @@ class Main extends React.Component {
     this.setState({ courseCredits: event.target.value });
   }
 
+  //edit course textfields
+  handleChange4(event) {
+    this.setState({ editCourseId: event.target.value });
+  }
+  handleChange5(event) {
+    this.setState({ editCourseName: event.target.value });
+  }
+  handleChange6(event) {
+    this.setState({ editCourseCredits: event.target.value });
+  }
+
   // add course button
   handleClickOpen1 = async () => {
     this.setState({ open1: true });
@@ -201,9 +296,15 @@ class Main extends React.Component {
 
   addCourseMethod = async () => {
     const { accounts, courseId, courseName, courseCredits } = this.state;
-    this.state.contract.methods
-      .addCourse(courseId, courseName, courseCredits)
-      .send({ from: accounts[0] });
+
+    if (courseId === "" || courseName === "" || courseCredits === 0) {
+    } 
+    else {
+      this.state.contract.methods
+        .addCourse(courseId, courseName, courseCredits)
+        .send({ from: accounts[0] })
+        .then(this.setState({ opensnack: true }));
+    }
   };
 
   //get course method
@@ -232,7 +333,7 @@ class Main extends React.Component {
             })
             .catch(console.error)
             .finally(() => {
-              console.log(course_rows[i]);
+              // console.log(course_rows[i]);
               finalCourses.push(course_rows[i]);
               if (i === num - 1) {
                 this.setState({ course_rows });
@@ -246,10 +347,6 @@ class Main extends React.Component {
   handleClickOpen2 = () => {
     this.setState({ open2: true });
   };
-
-  // handleClickOpen3 = () => {
-  //   this.setState({ open3: true });
-  // };
 
   handleClose1 = () => {
     this.setState({ open1: false });
@@ -279,6 +376,10 @@ class Main extends React.Component {
     this.setState({
       activeStep: 0
     });
+  };
+
+  handleCloseSnack = () => {
+    this.setState({opensnack: false});
   };
 
   render() {
@@ -345,8 +446,8 @@ class Main extends React.Component {
                       id="course_id"
                       label="Course Id"
                       type="text"
+                      style={{ width: 350 }}
                       variant="outlined"
-                      fullWidth
                       value={this.state.courseId}
                       onChange={event => this.handleChange(event)}
                     />
@@ -359,7 +460,7 @@ class Main extends React.Component {
                       label="Course Name"
                       type="text"
                       variant="outlined"
-                      fullWidth
+                      style={{ width: 350 }}
                       value={this.state.courseName}
                       onChange={event => this.handleChange2(event)}
                     />
@@ -376,7 +477,7 @@ class Main extends React.Component {
                       }}
                       margin="dense"
                       variant="outlined"
-                      fullWidth
+                      style={{ width: 350 }}
                       value={this.state.courseCredits}
                       onChange={event => this.handleChange3(event)}
                     />
@@ -422,12 +523,68 @@ class Main extends React.Component {
                       ))}
                     </Stepper>
                     <div>
+                      <Divider />
+                      <br />
+                      <TextField
+                        disabled={activeStep === 1}
+                        required
+                        autoFocus
+                        margin="dense"
+                        id="course_id"
+                        label="Course Id"
+                        type="text"
+                        variant="outlined"
+                        style={{ width: 350 }}
+                        value={this.state.courseId}
+                        onChange={event => this.handleChange4(event)}
+                      />
+                      <br />
+                      <br />
+                      <TextField
+                        disabled={activeStep === 0}
+                        margin="dense"
+                        id="course_name"
+                        label="Course Name"
+                        type="text"
+                        variant="outlined"
+                        style={{ width: 350 }}
+                        value={this.state.courseName}
+                        onChange={event => this.handleChange5(event)}
+                      />
+                      <br />
+                      <br />
+                      <TextField
+                        disabled={activeStep === 0}
+                        id="course_credits"
+                        label="Course Credits"
+                        type="number"
+                        className={classes.textField}
+                        InputLabelProps={{
+                          shrink: true
+                        }}
+                        margin="dense"
+                        variant="outlined"
+                        style={{ width: 350 }}
+                        value={this.state.courseCredits}
+                        onChange={event => this.handleChange6(event)}
+                      />
+                      <br />
+                      <br />
+                      <Divider />
+                      <br />
+
                       {this.state.activeStep === steps.length ? (
                         <div>
                           <Typography className={classes.instructions}>
-                            All steps completed
+                            Course Modified..
                           </Typography>
-                          <Button onClick={this.handleReset}>Reset</Button>
+                          <Button
+                            onClick={this.handleReset}
+                            color="primary"
+                            variant="contained"
+                          >
+                            Reset
+                          </Button>
                         </div>
                       ) : (
                         <div>
@@ -500,11 +657,13 @@ class Main extends React.Component {
                     <Table className={classes.table}>
                       <TableHead>
                         <TableRow>
-                          <CustomTableCell>Course Id</CustomTableCell>
-                          <CustomTableCell align="right">
+                          <CustomTableCell align="left">
+                            Course Id
+                          </CustomTableCell>
+                          <CustomTableCell align="left">
                             Course Name
                           </CustomTableCell>
-                          <CustomTableCell align="right">
+                          <CustomTableCell align="center">
                             Course Credits
                           </CustomTableCell>
                         </TableRow>
@@ -512,11 +671,15 @@ class Main extends React.Component {
                       <TableBody>
                         {course_rows.map(row => (
                           <TableRow className={classes.row} key={row.id}>
-                            <CustomTableCell component="th" scope="row">
+                            <CustomTableCell align="left">
                               {row.courseId}
                             </CustomTableCell>
-                            <CustomTableCell align="right">{row.courseName}</CustomTableCell>
-                            <CustomTableCell align="right">{row.courseCredits}</CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.courseName}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {row.courseCredits}
+                            </CustomTableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -639,6 +802,23 @@ class Main extends React.Component {
             </ul>
           </CardActions>
         </Card>
+        
+        <Snackbar
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left"
+          }}
+          open={this.state.opensnack}
+          autoHideDuration={9000}
+          onClose={this.handleCloseSnack}
+        >
+
+        <MySnackbarContentWrapper
+          onClose={this.handleCloseSnack}
+          variant="success"
+          message="Added Course"
+        />
+        </Snackbar>
       </Grid>
     );
   }
