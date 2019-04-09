@@ -21,7 +21,10 @@ contract Transcript {
         string courseName;
         uint8 courseCredits;
     }
-    
+
+    uint16 public coursesCount;
+    modifier courseIdCheck(uint courseId) { require( courseId < coursesCount ); _;}
+
     // Enumeration for semesters
     enum semesters { semester1, semester2, semester3, semester4, semester5, semester6, semester7, semester8 }
 
@@ -75,6 +78,7 @@ contract Transcript {
     gradeHash[] gradeHashes;           // keys for courseGrade
     pointHash[] pointHashes;          // keys for points
     course[] courses;
+    // mapping(uint => course) courses;
     
     mapping(bytes32 => student)  studentDetails;
     mapping(bytes32 => courseGrade)  courseGrades;
@@ -82,6 +86,13 @@ contract Transcript {
 
     mapping(string => bool) isCourseExit;
     
+    //events
+    event courseAdded(string courseId);
+    event studentAdded(uint32 studentId);
+    event courseGradeAdded(bytes32 hashvalue);
+    event gradePointAdded(bytes32 hashvalue);
+
+
     // check if student exits
     function checkStudent(bytes32 _hashvalue) public view returns (bool) {
         
@@ -129,9 +140,8 @@ contract Transcript {
         studentDetails[hvalue].studnetName = _studnetName;
         studentDetails[hvalue].dptType = _dptType;
         studentDetails[hvalue].batchYear = _batchYear;
-            
-        
-        
+
+        emit studentAdded(_studentId);
     }
     
     // add course
@@ -149,6 +159,13 @@ contract Transcript {
         });
         
         courses.push(c);
+
+        // courses[coursesCount].courseId = _courseId;
+        // courses[coursesCount].courseName = _courseId;
+        // courses[coursesCount].courseCredits = _courseCredits;
+
+        emit courseAdded(_courseId);
+        coursesCount =  coursesCount +1;
         
         isCourseExit[_courseId] = true;
     }
@@ -177,6 +194,8 @@ contract Transcript {
         courseGrades[hashvalue].courseId = _courseId;
         courseGrades[hashvalue].semester = semesters(_semester);
         courseGrades[hashvalue].grade = _grade;
+
+        emit courseGradeAdded(hashvalue);
     }
     
     // student sem points
@@ -201,6 +220,7 @@ contract Transcript {
         totalPoints[hashvalue].semester = semesters(_semester);
         totalPoints[hashvalue].spi = _spi;
         totalPoints[hashvalue].cpi = _cpi;
+        emit gradePointAdded(hashvalue);
         
     }
     
@@ -326,6 +346,14 @@ contract Transcript {
                 return(courses[i].courseId, courses[i].courseName, courses[i].courseCredits);
             }    
         }
+    }
+
+        // get course by index
+    function getCourseByIndex(uint16  _index) public view returns(string memory, string memory, uint8){
+        
+        course storage c = courses[_index];
+        return(c.courseId, c.courseName, c.courseCredits);
+
     }
     
     // get course grade -- transcript

@@ -111,12 +111,6 @@ const styles = theme => ({
 });
 
 //table
-let id = 0;
-
-function createData(CourseId, CourseName, Course_Credits) {
-  id += 1;
-  return { id, CourseId, CourseName, Course_Credits };
-}
 
 //stepper
 function getSteps() {
@@ -134,30 +128,33 @@ function getStepContent(step) {
   }
 }
 
-const rows = [
-  createData("Ma101", 159, 6.0),
-  createData("Ice cream sandwich", 237, 9.0),
-  createData("Eclair", 262, 16.0),
-  createData("Cupcake", 305, 3.7),
-  createData("Gingerbread", 356, 16.0)
-];
-
 function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
+//---------------------------------------------------- CLASS-----------------------------------
+
 class Main extends React.Component {
-  // for form dialog
-  state = {
-    open1: false,
-    open2: false,
-    open3: false,
-    activeStep: 0,
-    storageValue: 0,
-    web3: null,
-    accounts: null,
-    contract: null
-  };
+  constructor(props) {
+    super(props);
+    this.state = {
+      open1: false,
+      open2: false,
+      open3: false,
+      activeStep: 0,
+
+      web3: null,
+      accounts: null,
+      contract: null,
+
+      courseId: null,
+      courseName: null,
+      courseCredits: 0,
+
+      course_rows: [],
+      count: 0
+    };
+  }
 
   componentDidMount = async () => {
     try {
@@ -186,18 +183,73 @@ class Main extends React.Component {
       console.error(error);
     }
   };
+  //add course textfields
+  handleChange(event) {
+    this.setState({ courseId: event.target.value });
+  }
+  handleChange2(event) {
+    this.setState({ courseName: event.target.value });
+  }
+  handleChange3(event) {
+    this.setState({ courseCredits: event.target.value });
+  }
 
-  handleClickOpen1 = () => {
+  // add course button
+  handleClickOpen1 = async () => {
     this.setState({ open1: true });
+  };
+
+  addCourseMethod = async () => {
+    const { accounts, courseId, courseName, courseCredits } = this.state;
+    this.state.contract.methods
+      .addCourse(courseId, courseName, courseCredits)
+      .send({ from: accounts[0] });
+  };
+
+  //get course method
+  handleClickOpen3 = async () => {
+    this.setState({ open3: true });
+    let course_rows = [];
+    const { contract } = this.state;
+    let finalCourses = [];
+
+    contract.methods
+      .coursesCount()
+      .call()
+      .then(num => {
+        this.setState({ count: num });
+        for (let i = 0; i < num; i++) {
+          contract.methods
+            .getCourseByIndex(i)
+            .call()
+            .then(res => {
+              course_rows[i] = {
+                id: i,
+                courseId: res[0],
+                courseName: res[1],
+                courseCredits: res[2]
+              };
+            })
+            .catch(console.error)
+            .finally(() => {
+              console.log(course_rows[i]);
+              finalCourses.push(course_rows[i]);
+              if (i === num - 1) {
+                this.setState({ course_rows });
+              }
+            });
+        }
+      })
+      .catch(console.error);
   };
 
   handleClickOpen2 = () => {
     this.setState({ open2: true });
   };
 
-  handleClickOpen3 = () => {
-    this.setState({ open3: true });
-  };
+  // handleClickOpen3 = () => {
+  //   this.setState({ open3: true });
+  // };
 
   handleClose1 = () => {
     this.setState({ open1: false });
@@ -229,15 +281,11 @@ class Main extends React.Component {
     });
   };
 
-  //
-
   render() {
-    // if (!this.state.web3) {
-    //   return <div>Loading Web3, accounts, and contract...</div>;
-    // }
     const { classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
+    const { course_rows } = this.state;
     return (
       <Grid
         container
@@ -299,6 +347,8 @@ class Main extends React.Component {
                       type="text"
                       variant="outlined"
                       fullWidth
+                      value={this.state.courseId}
+                      onChange={event => this.handleChange(event)}
                     />
                     <br />
                     <br />
@@ -310,6 +360,8 @@ class Main extends React.Component {
                       type="text"
                       variant="outlined"
                       fullWidth
+                      value={this.state.courseName}
+                      onChange={event => this.handleChange2(event)}
                     />
                     <br />
                     <br />
@@ -325,13 +377,15 @@ class Main extends React.Component {
                       margin="dense"
                       variant="outlined"
                       fullWidth
+                      value={this.state.courseCredits}
+                      onChange={event => this.handleChange3(event)}
                     />
                   </DialogContent>
                   <DialogActions>
                     <Button onClick={this.handleClose1} color="primary">
                       Cancel
                     </Button>
-                    <Button onClick={this.handleClose1} color="primary">
+                    <Button onClick={this.addCourseMethod} color="primary">
                       Add
                     </Button>
                   </DialogActions>
@@ -456,17 +510,13 @@ class Main extends React.Component {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {rows.map(row => (
+                        {course_rows.map(row => (
                           <TableRow className={classes.row} key={row.id}>
                             <CustomTableCell component="th" scope="row">
-                              {row.CourseId}
+                              {row.courseId}
                             </CustomTableCell>
-                            <CustomTableCell align="right">
-                              {row.CourseName}
-                            </CustomTableCell>
-                            <CustomTableCell align="right">
-                              {row.Course_Credits}
-                            </CustomTableCell>
+                            <CustomTableCell align="right">{row.courseName}</CustomTableCell>
+                            <CustomTableCell align="right">{row.courseCredits}</CustomTableCell>
                           </TableRow>
                         ))}
                       </TableBody>
