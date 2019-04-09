@@ -29,13 +29,13 @@ import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 
-import WarningIcon from '@material-ui/icons/Warning';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
-import ErrorIcon from '@material-ui/icons/Error';
-import InfoIcon from '@material-ui/icons/Info';
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
-import classNames from 'classnames';
+import WarningIcon from "@material-ui/icons/Warning";
+import CheckCircleIcon from "@material-ui/icons/CheckCircle";
+import ErrorIcon from "@material-ui/icons/Error";
+import InfoIcon from "@material-ui/icons/Info";
+import CloseIcon from "@material-ui/icons/Close";
+import IconButton from "@material-ui/core/IconButton";
+import classNames from "classnames";
 import amber from "@material-ui/core/colors/amber";
 import green from "@material-ui/core/colors/green";
 import Snackbar from "@material-ui/core/Snackbar";
@@ -44,12 +44,11 @@ import SnackbarContent from "@material-ui/core/SnackbarContent";
 import getWeb3 from "../utils/getWeb3";
 import Transcript from "../contracts/Transcript.json";
 
-
 const variantIcon = {
   success: CheckCircleIcon,
   warning: WarningIcon,
   error: ErrorIcon,
-  info: InfoIcon,
+  info: InfoIcon
 };
 
 // table
@@ -130,8 +129,8 @@ const styles = theme => ({
 
   //snackbar
   margin: {
-    margin: theme.spacing.unit,
-  },
+    margin: theme.spacing.unit
+  }
 });
 
 const styles1 = theme => ({
@@ -203,7 +202,7 @@ function MySnackbarContent(props) {
           onClick={onClose}
         >
           <CloseIcon className={classes.icon} />
-        </IconButton>,
+        </IconButton>
       ]}
       {...other}
     />
@@ -234,7 +233,7 @@ class Main extends React.Component {
       editCourseId: null,
       editCourseName: null,
       editCourseCredits: 0,
-
+      dummy_course: null,
       course_rows: [],
       count: 0
     };
@@ -298,12 +297,62 @@ class Main extends React.Component {
     const { accounts, courseId, courseName, courseCredits } = this.state;
 
     if (courseId === "" || courseName === "" || courseCredits === 0) {
-    } 
-    else {
+    } else {
       this.state.contract.methods
         .addCourse(courseId, courseName, courseCredits)
         .send({ from: accounts[0] })
-        .then(this.setState({ opensnack: true }));
+        .then(this.setState({ opensnack: true, open1: false }));
+    }
+  };
+
+  modifyCourseMethod = async () => {
+    const {
+      accounts,
+      editCourseId,
+      editCourseName,
+      editCourseCredits,
+      activeStep,
+      contract
+    } = this.state;
+
+    const steps = getSteps();
+
+    this.setState(state => ({
+      activeStep: state.activeStep + 1
+    }));
+
+    if (activeStep === steps.length - 1) {
+      if (
+        editCourseName === "" ||
+        editCourseId === "" ||
+        editCourseCredits === 0
+      ) {
+      } else {
+        this.state.contract.methods
+          .changeCourse(editCourseId, editCourseName, editCourseCredits)
+          .send({ from: accounts[0] })
+          .then(this.setState({ opensnack: true }));
+      }
+    } else {
+      let dummy_course;
+      contract.methods
+        .getCourse(editCourseId)
+        .call()
+        .then(res => {
+          dummy_course = {
+            courseId: res[0],
+            courseName: res[1],
+            courseCredits: res[2]
+          };
+        })
+        .catch(console.error)
+        .finally(() => {
+          this.setState({ dummy_course });
+          this.setState({ editCourseId: dummy_course.courseId });
+          this.setState({ editCourseName: dummy_course.courseName });
+          this.setState({ editCourseCredits: dummy_course.courseCredits });
+          console.log(dummy_course);
+        });
     }
   };
 
@@ -360,11 +409,11 @@ class Main extends React.Component {
     this.setState({ open3: false });
   };
 
-  handleNext = () => {
-    this.setState(state => ({
-      activeStep: state.activeStep + 1
-    }));
-  };
+  // handleNext = () => {
+  //   this.setState(state => ({
+  //     activeStep: state.activeStep + 1
+  //   }));
+  // };
 
   handleBack = () => {
     this.setState(state => ({
@@ -379,7 +428,7 @@ class Main extends React.Component {
   };
 
   handleCloseSnack = () => {
-    this.setState({opensnack: false});
+    this.setState({ opensnack: false });
   };
 
   render() {
@@ -535,7 +584,7 @@ class Main extends React.Component {
                         type="text"
                         variant="outlined"
                         style={{ width: 350 }}
-                        value={this.state.courseId}
+                        value={this.state.editCourseId}
                         onChange={event => this.handleChange4(event)}
                       />
                       <br />
@@ -548,7 +597,7 @@ class Main extends React.Component {
                         type="text"
                         variant="outlined"
                         style={{ width: 350 }}
-                        value={this.state.courseName}
+                        value={this.state.editCourseName}
                         onChange={event => this.handleChange5(event)}
                       />
                       <br />
@@ -565,7 +614,7 @@ class Main extends React.Component {
                         margin="dense"
                         variant="outlined"
                         style={{ width: 350 }}
-                        value={this.state.courseCredits}
+                        value={this.state.editCourseCredits}
                         onChange={event => this.handleChange6(event)}
                       />
                       <br />
@@ -602,7 +651,7 @@ class Main extends React.Component {
                             <Button
                               variant="contained"
                               color="primary"
-                              onClick={this.handleNext}
+                              onClick={this.modifyCourseMethod}
                             >
                               {activeStep === steps.length - 1
                                 ? "Finish"
@@ -802,7 +851,7 @@ class Main extends React.Component {
             </ul>
           </CardActions>
         </Card>
-        
+
         <Snackbar
           anchorOrigin={{
             vertical: "bottom",
@@ -812,12 +861,11 @@ class Main extends React.Component {
           autoHideDuration={9000}
           onClose={this.handleCloseSnack}
         >
-
-        <MySnackbarContentWrapper
-          onClose={this.handleCloseSnack}
-          variant="success"
-          message="Added Course"
-        />
+          <MySnackbarContentWrapper
+            onClose={this.handleCloseSnack}
+            variant="success"
+            message="Added Course"
+          />
         </Snackbar>
       </Grid>
     );
