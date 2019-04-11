@@ -116,7 +116,7 @@ contract Transcript {
     
     
     //  add student hash and student details
-    function addStudentDetails(uint32  _studentId, string memory _studnetName, string memory _batchYear, string memory _dptType) public onlyIIITV {
+    function addStudentDetails(string memory _randomValue, uint32  _studentId, string memory _studnetName, string memory _batchYear, string memory _dptType) public onlyIIITV {
         
         bytes32 hashvalue = getHash(_studentId); 
         
@@ -124,7 +124,7 @@ contract Transcript {
         
         //generating hash value of student
         bytes32 hvalue;
-        hvalue = sha256(abi.encodePacked(_studentId, now));
+        hvalue = sha256(abi.encodePacked(_studentId, _randomValue));
         studentHash memory hashes;
         
         //storing student hashes

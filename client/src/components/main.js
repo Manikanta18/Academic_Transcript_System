@@ -16,6 +16,7 @@ import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogContentText from "@material-ui/core/DialogContentText";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Slide from "@material-ui/core/Slide";
@@ -28,28 +29,9 @@ import Paper from "@material-ui/core/Paper";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
-
-import WarningIcon from "@material-ui/icons/Warning";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import ErrorIcon from "@material-ui/icons/Error";
-import InfoIcon from "@material-ui/icons/Info";
-import CloseIcon from "@material-ui/icons/Close";
-import IconButton from "@material-ui/core/IconButton";
-import classNames from "classnames";
-import amber from "@material-ui/core/colors/amber";
-import green from "@material-ui/core/colors/green";
-import Snackbar from "@material-ui/core/Snackbar";
-import SnackbarContent from "@material-ui/core/SnackbarContent";
-
 import getWeb3 from "../utils/getWeb3";
 import Transcript from "../contracts/Transcript.json";
-
-const variantIcon = {
-  success: CheckCircleIcon,
-  warning: WarningIcon,
-  error: ErrorIcon,
-  info: InfoIcon
-};
+import randomstring from "randomstring";
 
 // table
 const CustomTableCell = withStyles(theme => ({
@@ -133,32 +115,6 @@ const styles = theme => ({
   }
 });
 
-const styles1 = theme => ({
-  success: {
-    backgroundColor: green[600]
-  },
-  error: {
-    backgroundColor: theme.palette.error.dark
-  },
-  info: {
-    backgroundColor: theme.palette.primary.dark
-  },
-  warning: {
-    backgroundColor: amber[700]
-  },
-  icon: {
-    fontSize: 20
-  },
-  iconVariant: {
-    opacity: 0.9,
-    marginRight: theme.spacing.unit
-  },
-  message: {
-    display: "flex",
-    alignItems: "center"
-  }
-});
-
 //stepper
 function getSteps() {
   return ["Course Id", "Edit"];
@@ -179,37 +135,16 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-function MySnackbarContent(props) {
-  const { classes, className, message, onClose, variant, ...other } = props;
-  const Icon = variantIcon[variant];
-
-  return (
-    <SnackbarContent
-      className={classNames(classes[variant], className)}
-      aria-describedby="client-snackbar"
-      message={
-        <span id="client-snackbar" className={classes.message}>
-          <Icon className={classNames(classes.icon, classes.iconVariant)} />
-          {message}
-        </span>
-      }
-      action={[
-        <IconButton
-          key="close"
-          aria-label="Close"
-          color="inherit"
-          className={classes.close}
-          onClick={onClose}
-        >
-          <CloseIcon className={classes.icon} />
-        </IconButton>
-      ]}
-      {...other}
-    />
-  );
-}
-
-const MySnackbarContentWrapper = withStyles(styles1)(MySnackbarContent);
+// const dptType = [
+//   {
+//     value: "IT",
+//     label: "IT"
+//   },
+//   {
+//     value: "CS",
+//     label: "CS"
+//   }
+// ];
 
 //---------------------------------------------------- CLASS-----------------------------------
 
@@ -220,6 +155,10 @@ class Main extends React.Component {
       open1: false,
       open2: false,
       open3: false,
+      open4: false,
+      open5: false,
+      open6: false,
+      open7: false,
       opensnack: false,
       activeStep: 0,
 
@@ -235,7 +174,17 @@ class Main extends React.Component {
       editCourseCredits: 0,
       dummy_course: null,
       course_rows: [],
-      count: 0
+      count: 0,
+
+      studentId: null,
+      studnetName: null,
+      dptType: "IT",
+      batchYear: null,
+      getStudentId: null,
+      student_details: [],
+
+      getStudentIdHash: null,
+      studentHash: "Sorry Student doesn't EXIT!!"
     };
   }
 
@@ -288,11 +237,25 @@ class Main extends React.Component {
     this.setState({ editCourseCredits: event.target.value });
   }
 
-  // add course button
-  handleClickOpen1 = async () => {
-    this.setState({ open1: true });
-  };
+  //add student textfields
+  handleChange7(event) {
+    this.setState({ studentId: event.target.value });
+  }
+  handleChange8(event) {
+    this.setState({ studnetName: event.target.value });
+  }
+  handleChange9(event) {
+    this.setState({ dptType: event.target.value });
+  }
+  handleChange10(event) {
+    this.setState({ batchYear: event.target.value });
+  }
 
+  handleChange11(event) {
+    this.setState({ getStudentIdHash: event.target.value });
+  }
+
+  //add cousre fun
   addCourseMethod = async () => {
     const { accounts, courseId, courseName, courseCredits } = this.state;
 
@@ -300,6 +263,39 @@ class Main extends React.Component {
     } else {
       this.state.contract.methods
         .addCourse(courseId, courseName, courseCredits)
+        .send({ from: accounts[0] })
+        .then(this.setState({ opensnack: true, open1: false }));
+    }
+  };
+
+  //add student fun
+  addstudentMethod = async () => {
+    const { accounts, studentId, studnetName, dptType, batchYear } = this.state;
+    let random_value;
+
+    random_value = randomstring.generate({
+      length: 256,
+      charset: "alphanumeric"
+    });
+
+    // random_value = web3.utils.fromAscii(random_value);
+    console.log(random_value);
+
+    if (
+      studentId === 0 ||
+      studnetName === "" ||
+      dptType === "" ||
+      batchYear === 0
+    ) {
+    } else {
+      this.state.contract.methods
+        .addStudentDetails(
+          random_value,
+          studentId,
+          studnetName,
+          dptType,
+          batchYear
+        )
         .send({ from: accounts[0] })
         .then(this.setState({ opensnack: true, open1: false }));
     }
@@ -356,6 +352,15 @@ class Main extends React.Component {
     }
   };
 
+  // add course button
+  handleClickOpen1 = async () => {
+    this.setState({ open1: true });
+  };
+
+  handleClickOpen2 = () => {
+    this.setState({ open2: true });
+  };
+
   //get course method
   handleClickOpen3 = async () => {
     this.setState({ open3: true });
@@ -393,8 +398,63 @@ class Main extends React.Component {
       .catch(console.error);
   };
 
-  handleClickOpen2 = () => {
-    this.setState({ open2: true });
+  handleClickOpen4 = () => {
+    this.setState({ open4: true });
+  };
+
+  // get stduent button
+  handleClickOpen6 = async () => {
+    this.setState({ open6: true });
+    let student_details = [];
+    const { contract, getStudentId } = this.state;
+
+    contract.methods
+      .getHash(getStudentId)
+      .call()
+      .then(value => {
+        contract.methods
+          .getStudentDetails(value)
+          .call()
+          .then(res => {
+            student_details = {
+              studentId: res[0],
+              studentName: res[1],
+              dptType: res[2],
+              batchYear: res[3]
+            };
+          })
+          .catch(console.error)
+          .finally(() => {
+            this.setState({ student_details });
+            console.log(student_details);
+          });
+      });
+  };
+
+  handleClickOpen7 = async () => {
+    this.setState({ open7: true });
+    let studentHash;
+    const { getStudentIdHash, contract } = this.state;
+
+    if (getStudentIdHash !== null) {
+      contract.methods
+        .getHash(getStudentIdHash)
+        .call()
+        .then(value => {
+          studentHash = value;
+
+          if (
+            value ===
+            "0x0000000000000000000000000000000000000000000000000000000000000000"
+          ) {
+            this.setState({ studentHash: "Sorry Student doesn't EXIT!!" });
+          } else {
+            this.setState({ studentHash });
+          }
+        });
+    } else {
+      this.setState({ studentHash: "Sorry Student doesn't EXIT!!" });
+    }
   };
 
   handleClose1 = () => {
@@ -407,6 +467,21 @@ class Main extends React.Component {
 
   handleClose3 = () => {
     this.setState({ open3: false });
+  };
+
+  handleClose4 = () => {
+    this.setState({ open4: false });
+  };
+
+  handleClose6 = () => {
+    this.setState({ open6: false });
+  };
+
+  handleClose7 = () => {
+    this.setState({
+      open7: false,
+      studentHash: null
+    });
   };
 
   // handleNext = () => {
@@ -440,6 +515,7 @@ class Main extends React.Component {
       <Grid
         container
         direction="row"
+        handleChange11
         justify="center"
         alignItems="center"
         style={{ backgroundColor: "#eeeeee" }}
@@ -747,13 +823,13 @@ class Main extends React.Component {
               color="textSecondary"
               gutterBottom
             >
-              <b>Students</b>
+              <b>Student Transcript</b>
             </Typography>
             <br />
             <br />
             <Typography component="p">
               You can Add, Modify and Get
-              <br /> the Students Details of IIITV
+              <br /> the Transcript Details of Student
             </Typography>
           </CardContent>
           <br />
@@ -765,11 +841,88 @@ class Main extends React.Component {
                   color="secondary"
                   className={classes.button}
                   style={{ backgroundColor: "#0d47a1" }}
+                  onClick={this.handleClickOpen4}
                 >
                   Add
                   <AddCircle className={classes.rightIcon} />
                 </Button>
+
+                {/* //coding */}
+                <Dialog
+                  open={this.state.open4}
+                  onClose={this.handleClose4}
+                  aria-labelledby="form-dialog-title"
+                  disableBackdropClick
+                  disableEscapeKeyDown
+                >
+                  <DialogTitle id="form-dialog-title">Add Student</DialogTitle>
+                  <DialogContent>
+                    <br />
+                    <Divider />
+                    <br />
+                    <TextField
+                      required
+                      autoFocus
+                      margin="dense"
+                      id="student_id"
+                      label="Student Id"
+                      type="number"
+                      style={{ width: 350 }}
+                      variant="outlined"
+                      value={this.state.studentId}
+                      onChange={event => this.handleChange7(event)}
+                    />
+                    <br />
+                    <br />
+                    <TextField
+                      required
+                      margin="dense"
+                      id="student_name"
+                      label="Student Name"
+                      type="text"
+                      variant="outlined"
+                      style={{ width: 350 }}
+                      value={this.state.studentName}
+                      onChange={event => this.handleChange8(event)}
+                    />
+                    <br />
+                    <br />
+                    <TextField
+                      required
+                      margin="dense"
+                      id="dept_type"
+                      label="Department Type"
+                      type="text"
+                      variant="outlined"
+                      style={{ width: 350 }}
+                      value={this.state.dptType}
+                      onChange={event => this.handleChange9(event)}
+                    />
+                    <br />
+                    <br />
+                    <TextField
+                      required
+                      margin="dense"
+                      id="batch_year"
+                      label="Batch Year"
+                      type="number"
+                      variant="outlined"
+                      style={{ width: 350 }}
+                      value={this.state.batchYear}
+                      onChange={event => this.handleChange10(event)}
+                    />
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={this.handleClose4} color="primary">
+                      Cancel
+                    </Button>
+                    <Button onClick={this.addstudentMethod} color="primary">
+                      Add
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
+
               <div>
                 <Button
                   variant="contained"
@@ -787,10 +940,68 @@ class Main extends React.Component {
                   color="primary"
                   className={classes.button}
                   style={{ backgroundColor: "#1976d2" }}
+                  onClick={this.handleClickOpen6}
                 >
                   Get
                   <GetIcon className={classes.rightIcon} />
                 </Button>
+
+                <Dialog
+                  fullScreen
+                  open={this.state.open6}
+                  onClose={this.handleClose6}
+                  TransitionComponent={Transition}
+                >
+                  <AppBar className={classes.appBar}>
+                    <Toolbar>
+                      <Typography
+                        variant="h6"
+                        color="inherit"
+                        className={classes.flex}
+                      >
+                        COURSES
+                      </Typography>
+                      <Button color="inherit" onClick={this.handleClose6}>
+                        Close
+                      </Button>
+                    </Toolbar>
+                  </AppBar>
+                  <Paper className={classes.root}>
+                    <Table className={classes.table}>
+                      <TableHead>
+                        <TableRow>
+                          <CustomTableCell align="left">
+                            Student Id
+                          </CustomTableCell>
+                          <CustomTableCell align="left">
+                            Student Name
+                          </CustomTableCell>
+                          <CustomTableCell align="left">
+                            Department Name
+                          </CustomTableCell>
+                          <CustomTableCell align="center">
+                            Batch Year
+                          </CustomTableCell>
+                        </TableRow>
+                      </TableHead>
+                      {/* <TableBody>
+                        {course_rows.map(row => (
+                          <TableRow className={classes.row} key={row.id}>
+                            <CustomTableCell align="left">
+                              {row.courseId}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.courseName}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {row.courseCredits}
+                            </CustomTableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody> */}
+                    </Table>
+                  </Paper>
+                </Dialog>
               </div>
             </ul>
           </CardActions>
@@ -803,70 +1014,74 @@ class Main extends React.Component {
               color="textSecondary"
               gutterBottom
             >
-              <b> Transcripts</b>
+              <b> Student Hash</b>
             </Typography>
             <br />
             <br />
             <Typography component="p">
-              You can Add, Modify and Get
-              <br /> the transcripts of Student
+              You can Get the Student's hash
             </Typography>
           </CardContent>
           <br />
+
+          <TextField
+            required
+            margin="dense"
+            id="student_id"
+            label="Student Id"
+            type="number"
+            variant="outlined"
+            style={{ margin: 25, width: 250 }}
+            value={this.state.getStudentIdHash}
+            onChange={event => this.handleChange11(event)}
+          />
+          <br />
+          <br />
+          <Divider />
+          <br />
+
           <CardActions>
             <ul>
               <div>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  className={classes.button}
-                  style={{ backgroundColor: "#0d47a1" }}
-                >
-                  Add
-                  <AddCircle className={classes.rightIcon} />
-                </Button>
-              </div>
-              <div>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  className={classes.button}
-                  style={{ backgroundColor: "#1565c0" }}
-                >
-                  Edit
-                  <Edit className={classes.rightIcon} />
-                </Button>
-              </div>
-              <div>
-                <Button
-                  variant="contained"
                   color="primary"
                   className={classes.button}
-                  style={{ backgroundColor: "#1976d2" }}
+                  style={{ backgroundColor: "#0d47a1" }}
+                  onClick={this.handleClickOpen7}
                 >
                   Get
                   <GetIcon className={classes.rightIcon} />
                 </Button>
+
+                <Dialog
+                  open={this.state.open7}
+                  minWidth="sm"
+                  TransitionComponent={Transition}
+                  keepMounted
+                  onClose={this.handleClose7}
+                  aria-labelledby="alert-dialog-slide-title"
+                  aria-describedby="alert-dialog-slide-description"
+                >
+                  <DialogTitle id="alert-dialog-slide-title">
+                    {"Student Hash"}
+                  </DialogTitle>
+                  <DialogContent>
+                    <DialogContentText id="alert-dialog-slide-description">
+                      {this.state.studentHash}
+                    </DialogContentText>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={this.handleClose7} color="primary">
+                      close
+                    </Button>
+                  </DialogActions>
+                </Dialog>
               </div>
             </ul>
           </CardActions>
         </Card>
 
-        <Snackbar
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left"
-          }}
-          open={this.state.opensnack}
-          autoHideDuration={9000}
-          onClose={this.handleCloseSnack}
-        >
-          <MySnackbarContentWrapper
-            onClose={this.handleCloseSnack}
-            variant="success"
-            message="Added Course"
-          />
-        </Snackbar>
       </Grid>
     );
   }
