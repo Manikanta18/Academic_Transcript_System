@@ -330,26 +330,33 @@ class Main extends React.Component {
           .then(this.setState({ opensnack: true }));
       }
     } else {
-      let dummy_course;
-      contract.methods
-        .getCourse(editCourseId)
-        .call()
-        .then(res => {
-          dummy_course = {
-            courseId: res[0],
-            courseName: res[1],
-            courseCredits: res[2]
-          };
-        })
-        .catch(console.error)
-        .finally(() => {
-          this.setState({ dummy_course });
-          this.setState({ editCourseId: dummy_course.courseId });
-          this.setState({ editCourseName: dummy_course.courseName });
-          this.setState({ editCourseCredits: dummy_course.courseCredits });
-          console.log(dummy_course);
-        });
+      if (editCourseId !== null) {
+        let dummy_course;
+        contract.methods
+          .getCourse(editCourseId)
+          .call()
+          .then(res => {
+            dummy_course = {
+              courseId: res[0],
+              courseName: res[1],
+              courseCredits: res[2]
+            };
+          })
+          .catch(console.error)
+          .finally(() => {
+            this.setState({ dummy_course });
+            this.setState({
+              editCourseId: dummy_course.courseId,
+              editCourseName: dummy_course.courseName,
+              editCourseCredits: dummy_course.courseCredits
+            });
+          });
+      }
+      else{
+        this.setState({ activeStep: 0 });
+      }
     }
+
   };
 
   // add course button
@@ -498,7 +505,10 @@ class Main extends React.Component {
 
   handleReset = () => {
     this.setState({
-      activeStep: 0
+      activeStep: 0,
+      editCourseId: null,
+      editCourseName: null,
+      editCourseCredits: null
     });
   };
 
@@ -539,7 +549,7 @@ class Main extends React.Component {
           <br />
           <CardActions>
             <ul>
-              {/* ADD COURSE */}
+              {/*------------------ ADD COURSE --------------------*/}
               <div>
                 <Button
                   variant="contained"
@@ -572,7 +582,7 @@ class Main extends React.Component {
                       label="Course Id"
                       type="text"
                       style={{ width: 350 }}
-                      variant="outlined"
+                      variant="filled"
                       value={this.state.courseId}
                       onChange={event => this.handleChange(event)}
                     />
@@ -584,7 +594,7 @@ class Main extends React.Component {
                       id="course_name"
                       label="Course Name"
                       type="text"
-                      variant="outlined"
+                      variant="filled"
                       style={{ width: 350 }}
                       value={this.state.courseName}
                       onChange={event => this.handleChange2(event)}
@@ -601,7 +611,7 @@ class Main extends React.Component {
                         shrink: true
                       }}
                       margin="dense"
-                      variant="outlined"
+                      variant="filled"
                       style={{ width: 350 }}
                       value={this.state.courseCredits}
                       onChange={event => this.handleChange3(event)}
@@ -618,7 +628,7 @@ class Main extends React.Component {
                 </Dialog>
               </div>
 
-              {/* EDIT COURSE */}
+              {/*------------------- EDIT COURSE -------------------*/}
               <div>
                 <Button
                   variant="contained"
@@ -655,10 +665,10 @@ class Main extends React.Component {
                         required
                         autoFocus
                         margin="dense"
-                        id="course_id"
+                        id="course_id2"
                         label="Course Id"
                         type="text"
-                        variant="outlined"
+                        variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseId}
                         onChange={event => this.handleChange4(event)}
@@ -668,10 +678,13 @@ class Main extends React.Component {
                       <TextField
                         disabled={activeStep === 0}
                         margin="dense"
-                        id="course_name"
+                        id="course_name2"
                         label="Course Name"
                         type="text"
-                        variant="outlined"
+                        InputLabelProps={{
+                          shrink: true
+                        }}
+                        variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseName}
                         onChange={event => this.handleChange5(event)}
@@ -680,7 +693,7 @@ class Main extends React.Component {
                       <br />
                       <TextField
                         disabled={activeStep === 0}
-                        id="course_credits"
+                        id="course_credits2"
                         label="Course Credits"
                         type="number"
                         className={classes.textField}
@@ -688,7 +701,7 @@ class Main extends React.Component {
                           shrink: true
                         }}
                         margin="dense"
-                        variant="outlined"
+                        variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseCredits}
                         onChange={event => this.handleChange6(event)}
@@ -1030,7 +1043,7 @@ class Main extends React.Component {
             id="student_id"
             label="Student Id"
             type="number"
-            variant="outlined"
+            variant="filled"
             style={{ margin: 25, width: 250 }}
             value={this.state.getStudentIdHash}
             onChange={event => this.handleChange11(event)}
@@ -1081,7 +1094,6 @@ class Main extends React.Component {
             </ul>
           </CardActions>
         </Card>
-
       </Grid>
     );
   }
