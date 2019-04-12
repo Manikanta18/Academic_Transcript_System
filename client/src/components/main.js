@@ -13,6 +13,7 @@ import Edit from "@material-ui/icons/Edit";
 import GetIcon from "@material-ui/icons/ArrowDownwardSharp";
 import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
+import MenuItem from "@material-ui/core/MenuItem";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -131,7 +132,7 @@ const styles = theme => ({
     marginTop: 10,
     marginLeft: 50,
     marginRight: 50,
-    marginBottom:50,
+    marginBottom: 50,
     overflowX: "auto"
   },
 
@@ -167,6 +168,10 @@ const styles = theme => ({
   //snackbar
   margin: {
     margin: theme.spacing.unit
+  },
+
+  menu: {
+    width: 200
   }
 });
 
@@ -190,16 +195,90 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-// const dptType = [
-//   {
-//     value: "IT",
-//     label: "IT"
-//   },
-//   {
-//     value: "CS",
-//     label: "CS"
-//   }
-// ];
+const departments = [
+  {
+    value: "BTech IT",
+    label: "BTech IT"
+  },
+  {
+    value: "BTech CS",
+    label: "BTech CS"
+  },
+  {
+    value: "MTech CS",
+    label: "MTech CS"
+  }
+];
+
+const semesters = [
+  {
+    value: 1,
+    label: "semester 1"
+  },
+  {
+    value: 2,
+    label: "semester 2"
+  },
+  {
+    value: 3,
+    label: "semester 3"
+  },
+  {
+    value: 4,
+    label: "semester 4"
+  },
+  {
+    value: 5,
+    label: "semester 5"
+  },
+  {
+    value: 6,
+    label: "semester 6"
+  },
+  {
+    value: 7,
+    label: "semester 7"
+  },
+  {
+    value: 8,
+    label: "semester 8"
+  }
+];
+
+const grades = [
+  {
+    value: "AA",
+    label: "AA"
+  },
+  {
+    value: "AB",
+    label: "AB"
+  },
+  {
+    value: "BB",
+    label: "BB"
+  },
+  {
+    value: "BC",
+    label: "BC"
+  },
+  {
+    value: "CC",
+    label: "CC"
+  },
+  {
+    value: "CD",
+    label: "CD"
+  },
+  {
+    value: "DD",
+    label: "DD"
+  },
+  {
+    value: "F",
+    label: "F"
+  }
+];
 
 //---------------------------------------------------- CLASS-----------------------------------
 
@@ -227,7 +306,6 @@ class Main extends React.Component {
       editCourseName: null,
       editCourseCredits: 0,
       dummy_course: null,
-      countCourse: 0,
       course_rows: [],
       courses: [],
       count: 0,
@@ -244,6 +322,8 @@ class Main extends React.Component {
       sem2: null,
       courseGradeRows: [],
       semPointsRows: [],
+      courseIndex: 0,
+      semIndex: 0,
 
       // student_details: [],
       // semester1: [],
@@ -256,7 +336,6 @@ class Main extends React.Component {
       // semester8: [],
 
       getStudentId: null,
-
       getStudentIdHash: null,
       studentHash: "Sorry Student doesn't EXIT!!"
     };
@@ -356,27 +435,53 @@ class Main extends React.Component {
     this.setState({ cpi: event.target.value });
   }
 
+  // add course grade to table
+  addCourseGrade = async () => {
+    const { sem, cId, cGrade, courseGradeRows, courseIndex } = this.state;
+    if (sem === 0 || cId === "" || cGrade === "") {
+    } else {
+      courseGradeRows[courseIndex] = {
+        semester: sem,
+        courseId: cId,
+        grade: cGrade
+      };
+
+      this.setState({ courseGradeRows, courseIndex: courseIndex + 1 });
+    }
+  };
+
+  // add Sem Points to table
+  addSemPoints = async () => {
+    const { sem2, spi, cpi, semPointsRows, semIndex } = this.state;
+    if (sem2 === 0 || spi === "" || cpi === "") {
+    } else {
+      semPointsRows[semIndex] = {
+        semester: sem2,
+        spi: spi,
+        cpi: cpi
+      };
+
+      this.setState({ semPointsRows, semIndex: semIndex + 1 });
+    }
+  };
+
   //add cousre fun
   addCourseMethod = async () => {
-    const {
-      accounts,
-      courseId,
-      courseName,
-      courseCredits,
-      countCourse,
-      courses
-    } = this.state;
+    const { accounts, courseId, courseName, courseCredits } = this.state;
 
     if (courseId === "" || courseName === "" || courseCredits === 0) {
     } else {
       this.state.contract.methods
         .addCourse(courseId, courseName, courseCredits)
         .send({ from: accounts[0] })
-        .then(this.setState({ open1: false }));
-
-      courses[countCourse] = courseId;
-      this.setState({ countCourse: countCourse + 1 });
-      console.log(courses);
+        .then(
+          this.setState({
+            open1: false,
+            courseId: null,
+            courseName: null,
+            courseCredits: 0
+          })
+        );
     }
   };
 
@@ -488,7 +593,7 @@ class Main extends React.Component {
   handleClickOpen3 = async () => {
     this.setState({ open3: true });
     let course_rows = [];
-    const { contract } = this.state;
+    const { contract, courses } = this.state;
     let finalCourses = [];
 
     contract.methods
@@ -507,13 +612,17 @@ class Main extends React.Component {
                 courseName: res[1],
                 courseCredits: res[2]
               };
+              courses[i] = {
+                value: res[0],
+                label: res[0]
+              };
             })
             .catch(console.error)
             .finally(() => {
               // console.log(course_rows[i]);
               finalCourses.push(course_rows[i]);
               if (i === num - 1) {
-                this.setState({ course_rows });
+                this.setState({ course_rows, courses });
               }
             });
         }
@@ -581,11 +690,22 @@ class Main extends React.Component {
   };
 
   handleClose1 = () => {
-    this.setState({ open1: false });
+    this.setState({
+      open1: false,
+      courseId: null,
+      courseName: null,
+      courseCredits: 0
+    });
   };
 
   handleClose2 = () => {
-    this.setState({ open2: false });
+    this.setState({
+      open2: false,
+      editCourseId: null,
+      editCourseName: null,
+      editCourseCredits: null,
+      activeStep: 0
+    });
   };
 
   handleClose3 = () => {
@@ -594,6 +714,12 @@ class Main extends React.Component {
 
   handleClose4 = () => {
     this.setState({ open4: false });
+    this.setState({
+      courseGradeRows: [],
+      semPointsRows: [],
+      courseIndex: 0,
+      semIndex: 0
+    });
   };
 
   handleClose6 = () => {
@@ -636,7 +762,7 @@ class Main extends React.Component {
     const { classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
-    const { course_rows, semPointsRows, courseGradeRows } = this.state;
+    const { course_rows, semPointsRows, courseGradeRows, courses } = this.state;
     return (
       <Grid
         container
@@ -779,16 +905,26 @@ class Main extends React.Component {
                       <TextField
                         disabled={activeStep === 1}
                         required
-                        autoFocus
+                        select
                         margin="dense"
                         id="course_id2"
                         label="Course Id"
-                        type="text"
-                        variant="filled"
+                        variant="outlined"
                         style={{ width: 350 }}
+                        SelectProps={{
+                          MenuProps: {
+                            className: classes.menu
+                          }
+                        }}
                         value={this.state.editCourseId}
                         onChange={event => this.handleChange4(event)}
-                      />
+                      >
+                        {courses.map(option => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </TextField>
                       <br />
                       <br />
                       <TextField
@@ -892,7 +1028,10 @@ class Main extends React.Component {
                   onClose={this.handleClose3}
                   TransitionComponent={Transition}
                 >
-                  <AppBar className={classes.appBar}>
+                  <AppBar
+                    className={classes.appBar}
+                    style={{ position: "sticky" }}
+                  >
                     <Toolbar>
                       <Typography
                         variant="h6"
@@ -982,7 +1121,10 @@ class Main extends React.Component {
                   onClose={this.handleClose4}
                   TransitionComponent={Transition}
                 >
-                  <AppBar className={classes.appBar}>
+                  <AppBar
+                    className={classes.appBar}
+                    style={{ position: "sticky" }}
+                  >
                     <Toolbar>
                       <Typography
                         variant="h6"
@@ -1047,16 +1189,27 @@ class Main extends React.Component {
                         />
                         <TextField
                           required
+                          select
                           margin="dense"
                           id="department"
                           label="Department Name"
-                          type="text"
                           variant="filled"
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
                           value={this.state.dptType}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={event => this.handleChange9(event)}
-                        />
+                        >
+                          {departments.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
                         <TextField
                           required
                           margin="dense"
@@ -1091,40 +1244,73 @@ class Main extends React.Component {
                         <div>
                           <TextField
                             required
+                            select
                             margin="dense"
                             id="course_id"
                             label="Course Id"
-                            type="text"
                             variant="filled"
                             value={this.state.cId}
                             className={classes.textField}
+                            SelectProps={{
+                              MenuProps: {
+                                className: classes.menu
+                              }
+                            }}
                             style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange12(event)}
-                          />
+                          >
+                            {courses.map(option => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
                           <TextField
                             required
+                            select
                             margin="dense"
                             id="semester"
                             label="Semester"
-                            type="number"
                             variant="filled"
                             value={this.state.sem}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange13(event)}
-                          />
+                            SelectProps={{
+                              MenuProps: {
+                                className: classes.menu
+                              }
+                            }}
+                          >
+                            {semesters.map(option => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
                           <TextField
                             required
+                            select
                             margin="dense"
                             id="grade"
                             label="Grade"
-                            type="text"
                             variant="filled"
                             value={this.state.cGrade}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange14(event)}
-                          />
+                            SelectProps={{
+                              MenuProps: {
+                                className: classes.menu
+                              }
+                            }}
+                          >
+                            {grades.map(option => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
                           <ul>
                             <Button
                               variant="contained"
@@ -1134,7 +1320,7 @@ class Main extends React.Component {
                                 backgroundColor: "#0d47a1",
                                 marginTop: 5
                               }}
-                              // onClick={this.handleClickOpen7}
+                              onClick={this.addCourseGrade}
                             >
                               Add
                               <AddCircle className={classes.rightIcon} />
@@ -1163,16 +1349,27 @@ class Main extends React.Component {
                         <div>
                           <TextField
                             required
+                            select
                             margin="dense"
                             id="semester"
                             label="Semester"
-                            type="number"
                             variant="filled"
                             value={this.state.sem2}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange15(event)}
-                          />
+                            SelectProps={{
+                              MenuProps: {
+                                className: classes.menu
+                              }
+                            }}
+                          >
+                            {semesters.map(option => (
+                              <MenuItem key={option.value} value={option.value}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
                           <TextField
                             required
                             margin="dense"
@@ -1206,7 +1403,7 @@ class Main extends React.Component {
                                 backgroundColor: "#0d47a1",
                                 marginTop: 5
                               }}
-                              // onClick={this.handleClickOpen7}
+                              onClick={this.addSemPoints}
                             >
                               Add
                               <AddCircle className={classes.rightIcon} />
@@ -1215,8 +1412,25 @@ class Main extends React.Component {
                         </div>
                       </CardActions>
                     </Card>
-                  
-                    <Paper className={classes.root1} style={{ marginTop: 50 }}>
+                    <Grid container justify="center" alignItems="center">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        style={{
+                          backgroundColor: "#2e7d32",
+                          marginTop: 5,
+                          width: 350,
+                          height: 50
+                        }}
+                        // onClick={this.handleClickOpen7}
+                      >
+                        Submit Transcript
+                        <AddCircle className={classes.rightIcon} />
+                      </Button>
+                    </Grid>
+
+                    <Paper className={classes.root1} style={{ marginTop: 80 }}>
                       <Table className={classes.table1}>
                         <TableHead>
                           <TableRow>
@@ -1232,24 +1446,24 @@ class Main extends React.Component {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                        {courseGradeRows.map(row => (
-                          <TableRow className={classes.row} key={row.id}>
-                            <CustomTableCell align="left">
-                              {row.semester}
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              {row.courseId}
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              {row.grade}
-                            </CustomTableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
+                          {courseGradeRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.courseId}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.grade}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
                       </Table>
                     </Paper>
 
-                    <Paper className={classes.root1} style={{ marginTop: 50 }}>
+                    <Paper className={classes.root1} style={{ marginTop: 80 }}>
                       <Table className={classes.table1}>
                         <TableHead>
                           <TableRow>
@@ -1263,20 +1477,20 @@ class Main extends React.Component {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                        {semPointsRows.map(row => (
-                          <TableRow className={classes.row} key={row.id}>
-                            <CustomTableCell align="left">
-                              {row.semester}
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              {row.spi}
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              {row.cpi}
-                            </CustomTableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
+                          {semPointsRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.spi}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.cpi}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
                       </Table>
                     </Paper>
                   </Grid>
