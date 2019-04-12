@@ -4,6 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
+import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
@@ -54,10 +55,38 @@ const styles = theme => ({
     padding: 25
   },
 
+  formCard: {
+    minWidth: 400,
+    minHeight: 150,
+    margin: 100,
+    padding: 25
+  },
+
+  semCard: {
+    minWidth: 350,
+    minHeight: 600,
+    maxWidth: 350,
+    MaxHeight: 600,
+    margin: 100,
+    padding: 25,
+    marginTop: 20
+  },
+
+  textField: {
+    marginLeft: theme.spacing.unit * 6,
+    marginRight: theme.spacing.unit * 6,
+    width: 300
+  },
+
   bullet: {
     display: "inline-block",
     margin: "0 2px",
     transform: "scale(0.8)"
+  },
+
+  media: {
+    height: 0,
+    paddingTop: "56.25%" // 16:9
   },
 
   title: {
@@ -78,8 +107,13 @@ const styles = theme => ({
   appBar: {
     position: "static"
   },
+
   flex: {
     flex: 1
+  },
+
+  dense: {
+    marginTop: 19
   },
 
   //table
@@ -90,12 +124,19 @@ const styles = theme => ({
     marginRight: theme.spacing.unit * 33,
     overflowX: "auto"
   },
+
   table: {
     minWidth: 400
   },
+
   row: {
     "&:nth-of-type(odd)": {
       backgroundColor: theme.palette.background.default
+    },
+
+    container: {
+      display: "flex",
+      flexWrap: "wrap"
     }
   },
 
@@ -159,7 +200,6 @@ class Main extends React.Component {
       open5: false,
       open6: false,
       open7: false,
-      opensnack: false,
       activeStep: 0,
 
       web3: null,
@@ -173,15 +213,33 @@ class Main extends React.Component {
       editCourseName: null,
       editCourseCredits: 0,
       dummy_course: null,
+      countCourse: 0,
       course_rows: [],
+      courses: [],
       count: 0,
 
       studentId: null,
       studnetName: null,
       dptType: "IT",
       batchYear: null,
-      getStudentId: null,
+      cId: null,
+      cGrade: null,
+      sem: null,
+      cpi: null,
+      spi: null,
+      sem2: null,
+
       student_details: [],
+      semester1: [],
+      semester2: [],
+      semester3: [],
+      semester4: [],
+      semester5: [],
+      semester6: [],
+      semester7: [],
+      semester8: [],
+
+      getStudentId: null,
 
       getStudentIdHash: null,
       studentHash: "Sorry Student doesn't EXIT!!"
@@ -251,25 +309,63 @@ class Main extends React.Component {
     this.setState({ batchYear: event.target.value });
   }
 
+  // get hash of student
   handleChange11(event) {
     this.setState({ getStudentIdHash: event.target.value });
   }
 
+  // adding course grade
+  handleChange12(event) {
+    this.setState({ cId: event.target.value });
+  }
+
+  handleChange13(event) {
+    this.setState({ sem: event.target.value });
+  }
+
+  handleChange14(event) {
+    this.setState({ cGrade: event.target.value });
+  }
+
+  // adding sem points
+  handleChange15(event) {
+    this.setState({ sem2: event.target.value });
+  }
+
+  handleChange16(event) {
+    this.setState({ spi: event.target.value });
+  }
+
+  handleChange17(event) {
+    this.setState({ cpi: event.target.value });
+  }
+
   //add cousre fun
   addCourseMethod = async () => {
-    const { accounts, courseId, courseName, courseCredits } = this.state;
+    const {
+      accounts,
+      courseId,
+      courseName,
+      courseCredits,
+      countCourse,
+      courses
+    } = this.state;
 
     if (courseId === "" || courseName === "" || courseCredits === 0) {
     } else {
       this.state.contract.methods
         .addCourse(courseId, courseName, courseCredits)
         .send({ from: accounts[0] })
-        .then(this.setState({ opensnack: true, open1: false }));
+        .then(this.setState({ open1: false }));
+
+      courses[countCourse] = courseId;
+      this.setState({ countCourse: countCourse + 1 });
+      console.log(courses);
     }
   };
 
   //add student fun
-  addstudentMethod = async () => {
+  addTranscriptMethod = async () => {
     const { accounts, studentId, studnetName, dptType, batchYear } = this.state;
     let random_value;
 
@@ -297,7 +393,7 @@ class Main extends React.Component {
           batchYear
         )
         .send({ from: accounts[0] })
-        .then(this.setState({ opensnack: true, open1: false }));
+        .then(this.setState({ open1: false }));
     }
   };
 
@@ -327,7 +423,13 @@ class Main extends React.Component {
         this.state.contract.methods
           .changeCourse(editCourseId, editCourseName, editCourseCredits)
           .send({ from: accounts[0] })
-          .then(this.setState({ opensnack: true }));
+          .then(
+            this.setState({
+              editCourseId: null,
+              editCourseName: null,
+              editCourseCredits: null
+            })
+          );
       }
     } else {
       if (editCourseId !== null) {
@@ -351,12 +453,10 @@ class Main extends React.Component {
               editCourseCredits: dummy_course.courseCredits
             });
           });
-      }
-      else{
+      } else {
         this.setState({ activeStep: 0 });
       }
     }
-
   };
 
   // add course button
@@ -412,30 +512,30 @@ class Main extends React.Component {
   // get stduent button
   handleClickOpen6 = async () => {
     this.setState({ open6: true });
-    let student_details = [];
-    const { contract, getStudentId } = this.state;
+    // let student_details = [];
+    // const { contract, getStudentId } = this.state;
 
-    contract.methods
-      .getHash(getStudentId)
-      .call()
-      .then(value => {
-        contract.methods
-          .getStudentDetails(value)
-          .call()
-          .then(res => {
-            student_details = {
-              studentId: res[0],
-              studentName: res[1],
-              dptType: res[2],
-              batchYear: res[3]
-            };
-          })
-          .catch(console.error)
-          .finally(() => {
-            this.setState({ student_details });
-            console.log(student_details);
-          });
-      });
+    // contract.methods
+    //   .getHash(getStudentId)
+    //   .call()
+    //   .then(value => {
+    //     contract.methods
+    //       .getStudentDetails(value)
+    //       .call()
+    //       .then(res => {
+    //         student_details = {
+    //           studentId: res[0],
+    //           studentName: res[1],
+    //           dptType: res[2],
+    //           batchYear: res[3]
+    //         };
+    //       })
+    //       .catch(console.error)
+    //       .finally(() => {
+    //         this.setState({ student_details });
+    //         console.log(student_details);
+    //       });
+    //   });
   };
 
   handleClickOpen7 = async () => {
@@ -525,7 +625,6 @@ class Main extends React.Component {
       <Grid
         container
         direction="row"
-        handleChange11
         justify="center"
         alignItems="center"
         style={{ backgroundColor: "#eeeeee" }}
@@ -606,7 +705,6 @@ class Main extends React.Component {
                       id="course_credits"
                       label="Course Credits"
                       type="number"
-                      className={classes.textField}
                       InputLabelProps={{
                         shrink: true
                       }}
@@ -696,7 +794,6 @@ class Main extends React.Component {
                         id="course_credits2"
                         label="Course Credits"
                         type="number"
-                        className={classes.textField}
                         InputLabelProps={{
                           shrink: true
                         }}
@@ -759,7 +856,7 @@ class Main extends React.Component {
                 </Dialog>
               </div>
 
-              {/* GET COURSES */}
+              {/*-------------------------------- GET COURSES-------------------------- */}
               <div>
                 <Button
                   variant="contained"
@@ -848,6 +945,7 @@ class Main extends React.Component {
           <br />
           <CardActions>
             <ul>
+              {/*---------------------------- Add Student Transcript--------------------- */}
               <div>
                 <Button
                   variant="contained"
@@ -860,82 +958,238 @@ class Main extends React.Component {
                   <AddCircle className={classes.rightIcon} />
                 </Button>
 
-                {/* //coding */}
                 <Dialog
+                  fullScreen
                   open={this.state.open4}
                   onClose={this.handleClose4}
-                  aria-labelledby="form-dialog-title"
-                  disableBackdropClick
-                  disableEscapeKeyDown
+                  TransitionComponent={Transition}
                 >
-                  <DialogTitle id="form-dialog-title">Add Student</DialogTitle>
-                  <DialogContent>
-                    <br />
-                    <Divider />
-                    <br />
-                    <TextField
-                      required
-                      autoFocus
-                      margin="dense"
-                      id="student_id"
-                      label="Student Id"
-                      type="number"
-                      style={{ width: 350 }}
-                      variant="outlined"
-                      value={this.state.studentId}
-                      onChange={event => this.handleChange7(event)}
-                    />
-                    <br />
-                    <br />
-                    <TextField
-                      required
-                      margin="dense"
-                      id="student_name"
-                      label="Student Name"
-                      type="text"
-                      variant="outlined"
-                      style={{ width: 350 }}
-                      value={this.state.studentName}
-                      onChange={event => this.handleChange8(event)}
-                    />
-                    <br />
-                    <br />
-                    <TextField
-                      required
-                      margin="dense"
-                      id="dept_type"
-                      label="Department Type"
-                      type="text"
-                      variant="outlined"
-                      style={{ width: 350 }}
-                      value={this.state.dptType}
-                      onChange={event => this.handleChange9(event)}
-                    />
-                    <br />
-                    <br />
-                    <TextField
-                      required
-                      margin="dense"
-                      id="batch_year"
-                      label="Batch Year"
-                      type="number"
-                      variant="outlined"
-                      style={{ width: 350 }}
-                      value={this.state.batchYear}
-                      onChange={event => this.handleChange10(event)}
-                    />
-                  </DialogContent>
-                  <DialogActions>
-                    <Button onClick={this.handleClose4} color="primary">
-                      Cancel
-                    </Button>
-                    <Button onClick={this.addstudentMethod} color="primary">
-                      Add
-                    </Button>
-                  </DialogActions>
+                  <AppBar className={classes.appBar}>
+                    <Toolbar>
+                      <Typography
+                        variant="h6"
+                        color="inherit"
+                        className={classes.flex}
+                      >
+                        Add Transcript
+                      </Typography>
+                      <Button color="inherit" onClick={this.handleClose4}>
+                        Close
+                      </Button>
+                    </Toolbar>
+                  </AppBar>
+
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    style={{ backgroundColor: "#eeeeee", height: "100%" }}
+                  >
+                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Student Details</b>
+                        </Typography>
+                        <br />
+                      </CardContent>
+                      <div>
+                        <TextField
+                          required
+                          autoFocus
+                          margin="dense"
+                          id="student_id"
+                          label="Student Id"
+                          type="number"
+                          variant="filled"
+                          value={this.state.studentId}
+                          style={{ margin: 25, width: 250 }}
+                          className={classes.textField}
+                          onChange={event => this.handleChange7(event)}
+                        />
+                        <TextField
+                          required
+                          margin="dense"
+                          id="student_name"
+                          label="Student Name"
+                          type="text"
+                          variant="filled"
+                          value={this.state.studnetName}
+                          style={{ margin: 25, width: 250 }}
+                          className={classes.textField}
+                          onChange={event => this.handleChange8(event)}
+                        />
+                        <TextField
+                          required
+                          margin="dense"
+                          id="department"
+                          label="Department Name"
+                          type="text"
+                          variant="filled"
+                          value={this.state.dptType}
+                          style={{ margin: 25, width: 250 }}
+                          className={classes.textField}
+                          onChange={event => this.handleChange9(event)}
+                        />
+                        <TextField
+                          required
+                          margin="dense"
+                          id="batch"
+                          label="Batch Year"
+                          type="number"
+                          variant="filled"
+                          value={this.state.batchYear}
+                          style={{ margin: 25, width: 250 }}
+                          className={classes.textField}
+                          onChange={event => this.handleChange10(event)}
+                        />
+                      </div>
+                    </Card>
+
+                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Add Course grade</b>
+                        </Typography>
+                        <br />
+                      </CardContent>
+                      <CardActions>
+                        <div>
+                          <TextField
+                            required
+                            margin="dense"
+                            id="course_id"
+                            label="Course Id"
+                            type="text"
+                            variant="filled"
+                            value={this.state.cId}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange12(event)}
+                          />
+                          <TextField
+                            required
+                            margin="dense"
+                            id="semester"
+                            label="Semester"
+                            type="number"
+                            variant="filled"
+                            value={this.state.sem}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange13(event)}
+                          />
+                          <TextField
+                            required
+                            margin="dense"
+                            id="grade"
+                            label="Grade"
+                            type="text"
+                            variant="filled"
+                            value={this.state.cGrade}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange14(event)}
+                          />
+                          <ul>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              className={classes.button}
+                              style={{
+                                backgroundColor: "#0d47a1",
+                                marginTop: 5
+                              }}
+                              // onClick={this.handleClickOpen7}
+                            >
+                              Add
+                              <AddCircle className={classes.rightIcon} />
+                            </Button>
+                          </ul>
+                        </div>
+                      </CardActions>
+                    </Card>
+
+                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Add Semester Points</b>
+                        </Typography>
+                        <br />
+                      </CardContent>
+                      <CardActions>
+                        <div>
+                          <TextField
+                            required
+                            margin="dense"
+                            id="semester"
+                            label="Semester"
+                            type="number"
+                            variant="filled"
+                            value={this.state.sem2}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange15(event)}
+                          />
+                          <TextField
+                            required
+                            margin="dense"
+                            id="spi"
+                            label="SPI"
+                            type="text"
+                            variant="filled"
+                            value={this.state.spi}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange16(event)}
+                          />
+                          <TextField
+                            required
+                            margin="dense"
+                            id="cpi"
+                            label="CPI"
+                            type="text"
+                            variant="filled"
+                            value={this.state.cpi}
+                            className={classes.textField}
+                            style={{ margin: 25, width: 250 }}
+                            onChange={event => this.handleChange17(event)}
+                          />
+                          <ul>
+                            <Button
+                              variant="contained"
+                              color="primary"
+                              className={classes.button}
+                              style={{
+                                backgroundColor: "#0d47a1",
+                                marginTop: 5
+                              }}
+                              // onClick={this.handleClickOpen7}
+                            >
+                              Add
+                              <AddCircle className={classes.rightIcon} />
+                            </Button>
+                          </ul>
+                        </div>
+                      </CardActions>
+                    </Card>
+                  </Grid>
                 </Dialog>
               </div>
 
+              {/*---------------------------- edit Student Transcript--------------------- */}
               <div>
                 <Button
                   variant="contained"
@@ -947,6 +1201,7 @@ class Main extends React.Component {
                   <Edit className={classes.rightIcon} />
                 </Button>
               </div>
+              {/*---------------------------- Get Student Transcript--------------------- */}
               <div>
                 <Button
                   variant="contained"
@@ -972,47 +1227,21 @@ class Main extends React.Component {
                         color="inherit"
                         className={classes.flex}
                       >
-                        COURSES
+                        Transcript
                       </Typography>
                       <Button color="inherit" onClick={this.handleClose6}>
                         Close
                       </Button>
                     </Toolbar>
                   </AppBar>
-                  <Paper className={classes.root}>
-                    <Table className={classes.table}>
-                      <TableHead>
-                        <TableRow>
-                          <CustomTableCell align="left">
-                            Student Id
-                          </CustomTableCell>
-                          <CustomTableCell align="left">
-                            Student Name
-                          </CustomTableCell>
-                          <CustomTableCell align="left">
-                            Department Name
-                          </CustomTableCell>
-                          <CustomTableCell align="center">
-                            Batch Year
-                          </CustomTableCell>
-                        </TableRow>
-                      </TableHead>
-                      {/* <TableBody>
-                        {course_rows.map(row => (
-                          <TableRow className={classes.row} key={row.id}>
-                            <CustomTableCell align="left">
-                              {row.courseId}
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              {row.courseName}
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              {row.courseCredits}
-                            </CustomTableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody> */}
-                    </Table>
+                  <Paper>
+                    <Card className={classes.card}>
+                      <CardMedia
+                        className={classes.media}
+                        image="./iiit_logo.png"
+                        title="logo"
+                      />
+                    </Card>
                   </Paper>
                 </Dialog>
               </div>
@@ -1075,6 +1304,8 @@ class Main extends React.Component {
                   onClose={this.handleClose7}
                   aria-labelledby="alert-dialog-slide-title"
                   aria-describedby="alert-dialog-slide-description"
+                  disableBackdropClick
+                  disableEscapeKeyDown
                 >
                   <DialogTitle id="alert-dialog-slide-title">
                     {"Student Hash"}
