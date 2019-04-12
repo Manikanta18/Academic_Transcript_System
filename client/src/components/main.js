@@ -125,8 +125,22 @@ const styles = theme => ({
     overflowX: "auto"
   },
 
+  //table
+  root1: {
+    width: 600,
+    marginTop: 10,
+    marginLeft: 50,
+    marginRight: 50,
+    marginBottom:50,
+    overflowX: "auto"
+  },
+
   table: {
     minWidth: 400
+  },
+
+  table1: {
+    Width: 600
   },
 
   row: {
@@ -228,16 +242,18 @@ class Main extends React.Component {
       cpi: null,
       spi: null,
       sem2: null,
+      courseGradeRows: [],
+      semPointsRows: [],
 
-      student_details: [],
-      semester1: [],
-      semester2: [],
-      semester3: [],
-      semester4: [],
-      semester5: [],
-      semester6: [],
-      semester7: [],
-      semester8: [],
+      // student_details: [],
+      // semester1: [],
+      // semester2: [],
+      // semester3: [],
+      // semester4: [],
+      // semester5: [],
+      // semester6: [],
+      // semester7: [],
+      // semester8: [],
 
       getStudentId: null,
 
@@ -620,7 +636,7 @@ class Main extends React.Component {
     const { classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
-    const { course_rows } = this.state;
+    const { course_rows, semPointsRows, courseGradeRows } = this.state;
     return (
       <Grid
         container
@@ -665,6 +681,7 @@ class Main extends React.Component {
                   open={this.state.open1}
                   onClose={this.handleClose1}
                   aria-labelledby="form-dialog-title"
+                  TransitionComponent={Transition}
                   disableBackdropClick
                   disableEscapeKeyDown
                 >
@@ -745,6 +762,7 @@ class Main extends React.Component {
                   aria-labelledby="form-dialog-title"
                   disableBackdropClick
                   disableEscapeKeyDown
+                  TransitionComponent={Transition}
                 >
                   <DialogTitle id="form-dialog-title">Edit Course</DialogTitle>
                   <DialogContent>
@@ -984,9 +1002,9 @@ class Main extends React.Component {
                     direction="row"
                     justify="center"
                     alignItems="center"
-                    style={{ backgroundColor: "#eeeeee", height: "100%" }}
+                    style={{ backgroundColor: "#eeeeee", height: "500%" }}
                   >
-                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                    <Card className={classes.card} style={{ marginTop: 50 }}>
                       <CardContent>
                         <Typography
                           className={classes.title}
@@ -994,6 +1012,10 @@ class Main extends React.Component {
                           gutterBottom
                         >
                           <b>Student Details</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Enter the Student Details
                         </Typography>
                         <br />
                       </CardContent>
@@ -1007,7 +1029,7 @@ class Main extends React.Component {
                           type="number"
                           variant="filled"
                           value={this.state.studentId}
-                          style={{ margin: 25, width: 250 }}
+                          style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={event => this.handleChange7(event)}
                         />
@@ -1019,7 +1041,7 @@ class Main extends React.Component {
                           type="text"
                           variant="filled"
                           value={this.state.studnetName}
-                          style={{ margin: 25, width: 250 }}
+                          style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={event => this.handleChange8(event)}
                         />
@@ -1031,7 +1053,7 @@ class Main extends React.Component {
                           type="text"
                           variant="filled"
                           value={this.state.dptType}
-                          style={{ margin: 25, width: 250 }}
+                          style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={event => this.handleChange9(event)}
                         />
@@ -1043,14 +1065,14 @@ class Main extends React.Component {
                           type="number"
                           variant="filled"
                           value={this.state.batchYear}
-                          style={{ margin: 25, width: 250 }}
+                          style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={event => this.handleChange10(event)}
                         />
                       </div>
                     </Card>
 
-                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                    <Card className={classes.card} style={{ marginTop: 50 }}>
                       <CardContent>
                         <Typography
                           className={classes.title}
@@ -1058,6 +1080,10 @@ class Main extends React.Component {
                           gutterBottom
                         >
                           <b>Add Course grade</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Add Student's Course Grade
                         </Typography>
                         <br />
                       </CardContent>
@@ -1072,7 +1098,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.cId}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange12(event)}
                           />
                           <TextField
@@ -1084,7 +1110,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.sem}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange13(event)}
                           />
                           <TextField
@@ -1096,7 +1122,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.cGrade}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange14(event)}
                           />
                           <ul>
@@ -1118,7 +1144,7 @@ class Main extends React.Component {
                       </CardActions>
                     </Card>
 
-                    <Card className={classes.card} style={{ marginTop: 5 }}>
+                    <Card className={classes.card} style={{ marginTop: 50 }}>
                       <CardContent>
                         <Typography
                           className={classes.title}
@@ -1126,6 +1152,10 @@ class Main extends React.Component {
                           gutterBottom
                         >
                           <b>Add Semester Points</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Enter Student's Semester Points
                         </Typography>
                         <br />
                       </CardContent>
@@ -1140,7 +1170,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.sem2}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange15(event)}
                           />
                           <TextField
@@ -1152,7 +1182,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.spi}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange16(event)}
                           />
                           <TextField
@@ -1164,7 +1194,7 @@ class Main extends React.Component {
                             variant="filled"
                             value={this.state.cpi}
                             className={classes.textField}
-                            style={{ margin: 25, width: 250 }}
+                            style={{ margin: 15, width: 250 }}
                             onChange={event => this.handleChange17(event)}
                           />
                           <ul>
@@ -1185,6 +1215,70 @@ class Main extends React.Component {
                         </div>
                       </CardActions>
                     </Card>
+                  
+                    <Paper className={classes.root1} style={{ marginTop: 50 }}>
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Semester
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              Course Id
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              Course Grade
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        {courseGradeRows.map(row => (
+                          <TableRow className={classes.row} key={row.id}>
+                            <CustomTableCell align="left">
+                              {row.semester}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.courseId}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {row.grade}
+                            </CustomTableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      </Table>
+                    </Paper>
+
+                    <Paper className={classes.root1} style={{ marginTop: 50 }}>
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Semester
+                            </CustomTableCell>
+                            <CustomTableCell align="left">SPI</CustomTableCell>
+                            <CustomTableCell align="center">
+                              CPI
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        {semPointsRows.map(row => (
+                          <TableRow className={classes.row} key={row.id}>
+                            <CustomTableCell align="left">
+                              {row.semester}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.spi}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {row.cpi}
+                            </CustomTableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      </Table>
+                    </Paper>
                   </Grid>
                 </Dialog>
               </div>
