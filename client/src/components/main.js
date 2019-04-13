@@ -394,7 +394,6 @@ class Main extends React.Component {
   addCourseGrade = () => {
     const { sem, cId, cGrade, courseGradeRows, courseIndex } = this.state;
     let check = this.checkCourse(cId, sem);
-    console.log(cId, check);
     if (sem === 0 || cId === "" || cGrade === "" || check === true) {
     } else {
       courseGradeRows[courseIndex] = {
@@ -406,10 +405,23 @@ class Main extends React.Component {
     }
   };
 
+  //check course grade of that sem exits
+  checkSem(semester) {
+    let value = null;
+    for (let i = 0; i < this.state.semPointsRows.length; i++) {
+      if (this.state.semPointsRows[i].semester === semester) {
+        value = true;
+        return value;
+      }
+    }
+    return false;
+  }
+
   // add Sem Points to table
   addSemPoints = async () => {
     const { sem2, spi, cpi, semPointsRows, semIndex } = this.state;
-    if (sem2 === 0 || spi === "" || cpi === "") {
+    let check = this.checkSem(sem2);
+    if (sem2 === 0 || spi === "" || cpi === "" || check === true) {
     } else {
       semPointsRows[semIndex] = {
         semester: sem2,
@@ -441,18 +453,15 @@ class Main extends React.Component {
     }
   };
 
-  //add student fun
+  //add transcript fun
   addTranscriptMethod = async () => {
-    const { accounts, studentId, studnetName, dptType, batchYear } = this.state;
+    const { accounts, studentId, studnetName, dptType, batchYear, courseGradeRows, semPointsRows } = this.state;
     let random_value;
 
     random_value = randomstring.generate({
       length: 256,
       charset: "alphanumeric"
     });
-
-    // random_value = web3.utils.fromAscii(random_value);
-    console.log(random_value);
 
     if (
       studentId === 0 ||
@@ -577,7 +586,7 @@ class Main extends React.Component {
   };
 
   // add course button
-  handleClickOpen1 = async () => {
+  handleClickOpen1 = () => {
     this.setState({ open1: true });
     this.getCourseMethod();
   };
@@ -680,7 +689,17 @@ class Main extends React.Component {
       courseGradeRows: [],
       semPointsRows: [],
       courseIndex: 0,
-      semIndex: 0
+      semIndex: 0,
+      studentId: null,
+      studnetName: null,
+      dptType: null,
+      batchYear: null,
+      cId: null,
+      cGrade: null,
+      sem: null,
+      sem2: null,
+      cpi: null,
+      spi: null
     });
   };
 
@@ -780,10 +799,13 @@ class Main extends React.Component {
                       label="Course Id"
                       type="text"
                       style={{ width: 350 }}
-                      variant="filled"
+                      variant="outlined"
                       value={this.state.courseId}
                       // onChange={event => this.handleChange(event)}
                       onChange={this.handleChange("courseId")}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
                     />
                     <br />
                     <br />
@@ -793,10 +815,13 @@ class Main extends React.Component {
                       id="course_name"
                       label="Course Name"
                       type="text"
-                      variant="filled"
+                      variant="outlined"
                       style={{ width: 350 }}
                       value={this.state.courseName}
                       onChange={this.handleChange("courseName")}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
                     />
                     <br />
                     <br />
@@ -866,6 +891,9 @@ class Main extends React.Component {
                         margin="dense"
                         id="course_id2"
                         label="Course Id"
+                        InputLabelProps={{
+                          shrink: true
+                        }}
                         variant="outlined"
                         style={{ width: 350 }}
                         SelectProps={{
@@ -893,7 +921,7 @@ class Main extends React.Component {
                         InputLabelProps={{
                           shrink: true
                         }}
-                        variant="filled"
+                        variant="outlined"
                         style={{ width: 350 }}
                         value={this.state.editCourseName}
                         onChange={this.handleChange("editCourseName")}
@@ -909,7 +937,7 @@ class Main extends React.Component {
                           shrink: true
                         }}
                         margin="dense"
-                        variant="filled"
+                        variant="outlined"
                         style={{ width: 350 }}
                         value={this.state.editCourseCredits}
                         onChange={this.handleChange("editCourseCredits")}
@@ -1126,11 +1154,14 @@ class Main extends React.Component {
                           id="student_id"
                           label="Student Id"
                           type="number"
-                          variant="filled"
+                          variant="outlined"
                           value={this.state.studentId}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={this.handleChange("studentId")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
                         />
                         <TextField
                           required
@@ -1138,11 +1169,14 @@ class Main extends React.Component {
                           id="student_name"
                           label="Student Name"
                           type="text"
-                          variant="filled"
+                          variant="outlined"
                           value={this.state.studnetName}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
                           onChange={this.handleChange("studnetName")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
                         />
                         <TextField
                           required
@@ -1150,7 +1184,10 @@ class Main extends React.Component {
                           margin="dense"
                           id="department"
                           label="Department Name"
-                          variant="filled"
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          variant="outlined"
                           SelectProps={{
                             MenuProps: {
                               className: classes.menu
@@ -1172,8 +1209,11 @@ class Main extends React.Component {
                           margin="dense"
                           id="batch"
                           label="Batch Year"
+                          InputLabelProps={{
+                            shrink: true
+                          }}
                           type="number"
-                          variant="filled"
+                          variant="outlined"
                           value={this.state.batchYear}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
@@ -1203,11 +1243,14 @@ class Main extends React.Component {
                             required
                             select
                             margin="dense"
-                            id="course_id"
+                            id="courseid"
                             label="Course Id"
-                            variant="filled"
+                            variant="outlined"
                             value={this.state.cId}
                             className={classes.textField}
+                            InputLabelProps={{
+                              shrink: true
+                            }}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1226,13 +1269,16 @@ class Main extends React.Component {
                             required
                             select
                             margin="dense"
-                            id="semester"
+                            id="semester1"
                             label="Semester"
-                            variant="filled"
+                            variant="outlined"
                             value={this.state.sem}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={this.handleChange("sem")}
+                            InputLabelProps={{
+                              shrink: true
+                            }}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1251,11 +1297,14 @@ class Main extends React.Component {
                             margin="dense"
                             id="grade"
                             label="Grade"
-                            variant="filled"
+                            variant="outlined"
                             value={this.state.cGrade}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={this.handleChange("cGrade")}
+                            InputLabelProps={{
+                              shrink: true
+                            }}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1308,9 +1357,12 @@ class Main extends React.Component {
                             required
                             select
                             margin="dense"
-                            id="semester"
+                            id="semester2"
                             label="Semester"
-                            variant="filled"
+                            InputLabelProps={{
+                              shrink: true
+                            }}
+                            variant="outlined"
                             value={this.state.sem2}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1333,11 +1385,14 @@ class Main extends React.Component {
                             id="spi"
                             label="SPI"
                             type="text"
-                            variant="filled"
+                            variant="outlined"
                             value={this.state.spi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={this.handleChange("spi")}
+                            InputLabelProps={{
+                              shrink: true
+                            }}
                           />
                           <TextField
                             required
@@ -1345,11 +1400,14 @@ class Main extends React.Component {
                             id="cpi"
                             label="CPI"
                             type="text"
-                            variant="filled"
+                            variant="outlined"
                             value={this.state.cpi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
                             onChange={this.handleChange("cpi")}
+                            InputLabelProps={{
+                              shrink: true
+                            }}
                           />
                           <ul>
                             <Button
@@ -1537,10 +1595,13 @@ class Main extends React.Component {
             id="student_id"
             label="Student Id"
             type="number"
-            variant="filled"
+            variant="outlined"
             style={{ margin: 25, width: 250 }}
             value={this.state.getStudentIdHash}
             onChange={this.handleChange("cpi")}
+            InputLabelProps={{
+              shrink: true
+            }}
           />
           <br />
           <br />
