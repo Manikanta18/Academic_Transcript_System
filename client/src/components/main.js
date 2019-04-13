@@ -368,6 +368,7 @@ class Main extends React.Component {
       console.error(error);
     }
   };
+
   //add course textfields
   handleChange(event) {
     this.setState({ courseId: event.target.value });
@@ -435,17 +436,29 @@ class Main extends React.Component {
     this.setState({ cpi: event.target.value });
   }
 
+  checkCourse(courseId, semester) {
+    let value = null;
+    for (let i = 0; i < this.state.courseGradeRows.length; i++) {
+      if (this.state.courseGradeRows[i].courseId === courseId && this.state.courseGradeRows[i].semester === semester) {
+        value = true;
+        return value;
+      }
+    }
+    return false;
+  }
+
   // add course grade to table
-  addCourseGrade = async () => {
+  addCourseGrade = () => {
     const { sem, cId, cGrade, courseGradeRows, courseIndex } = this.state;
-    if (sem === 0 || cId === "" || cGrade === "") {
+    let check = this.checkCourse(cId, sem);
+    console.log(cId, check);
+    if (sem === 0 || cId === "" || cGrade === "" || check === true) {
     } else {
       courseGradeRows[courseIndex] = {
         semester: sem,
         courseId: cId,
         grade: cGrade
       };
-
       this.setState({ courseGradeRows, courseIndex: courseIndex + 1 });
     }
   };
