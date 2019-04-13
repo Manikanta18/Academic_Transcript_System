@@ -624,7 +624,6 @@ class Main extends React.Component {
     //   });
   };
 
-
   //get student Hash
   handleClickOpen7 = async () => {
     this.setState({ open7: true });
@@ -784,7 +783,7 @@ class Main extends React.Component {
                       variant="filled"
                       value={this.state.courseId}
                       // onChange={event => this.handleChange(event)}
-                      onChange={this.handleChange('courseId')}
+                      onChange={this.handleChange("courseId")}
                     />
                     <br />
                     <br />
@@ -797,7 +796,7 @@ class Main extends React.Component {
                       variant="filled"
                       style={{ width: 350 }}
                       value={this.state.courseName}
-                      onChange={this.handleChange('courseName')}
+                      onChange={this.handleChange("courseName")}
                     />
                     <br />
                     <br />
@@ -813,7 +812,7 @@ class Main extends React.Component {
                       variant="filled"
                       style={{ width: 350 }}
                       value={this.state.courseCredits}
-                      onChange={this.handleChange('courseCredits')}
+                      onChange={this.handleChange("courseCredits")}
                     />
                   </DialogContent>
                   <DialogActions>
@@ -875,7 +874,7 @@ class Main extends React.Component {
                           }
                         }}
                         value={this.state.editCourseId}
-                        onChange={this.handleChange('editCourseId')}
+                        onChange={this.handleChange("editCourseId")}
                       >
                         {courses.map(option => (
                           <MenuItem key={option.value} value={option.value}>
@@ -897,7 +896,7 @@ class Main extends React.Component {
                         variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseName}
-                        onChange={this.handleChange('editCourseName')}
+                        onChange={this.handleChange("editCourseName")}
                       />
                       <br />
                       <br />
@@ -913,7 +912,7 @@ class Main extends React.Component {
                         variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseCredits}
-                        onChange={this.handleChange('editCourseCredits')}
+                        onChange={this.handleChange("editCourseCredits")}
                       />
                       <br />
                       <br />
@@ -1131,7 +1130,7 @@ class Main extends React.Component {
                           value={this.state.studentId}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
-                          onChange={this.handleChange('studentId')}
+                          onChange={this.handleChange("studentId")}
                         />
                         <TextField
                           required
@@ -1143,7 +1142,7 @@ class Main extends React.Component {
                           value={this.state.studnetName}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
-                          onChange={this.handleChange('studnetName')}
+                          onChange={this.handleChange("studnetName")}
                         />
                         <TextField
                           required
@@ -1160,7 +1159,7 @@ class Main extends React.Component {
                           value={this.state.dptType}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
-                          onChange={this.handleChange('dptType')}
+                          onChange={this.handleChange("dptType")}
                         >
                           {departments.map(option => (
                             <MenuItem key={option.value} value={option.value}>
@@ -1178,7 +1177,7 @@ class Main extends React.Component {
                           value={this.state.batchYear}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
-                          onChange={this.handleChange('batchYear')}
+                          onChange={this.handleChange("batchYear")}
                         />
                       </div>
                     </Card>
@@ -1215,7 +1214,7 @@ class Main extends React.Component {
                               }
                             }}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('cId')}
+                            onChange={this.handleChange("cId")}
                           >
                             {courses.map(option => (
                               <MenuItem key={option.value} value={option.value}>
@@ -1233,7 +1232,7 @@ class Main extends React.Component {
                             value={this.state.sem}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('sem')}
+                            onChange={this.handleChange("sem")}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1256,7 +1255,7 @@ class Main extends React.Component {
                             value={this.state.cGrade}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('cGrade')}
+                            onChange={this.handleChange("cGrade")}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1315,7 +1314,7 @@ class Main extends React.Component {
                             value={this.state.sem2}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('sem2')}
+                            onChange={this.handleChange("sem2")}
                             SelectProps={{
                               MenuProps: {
                                 className: classes.menu
@@ -1338,7 +1337,7 @@ class Main extends React.Component {
                             value={this.state.spi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('spi')}
+                            onChange={this.handleChange("spi")}
                           />
                           <TextField
                             required
@@ -1350,7 +1349,7 @@ class Main extends React.Component {
                             value={this.state.cpi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
-                            onChange={this.handleChange('cpi')}
+                            onChange={this.handleChange("cpi")}
                           />
                           <ul>
                             <Button
@@ -1541,7 +1540,7 @@ class Main extends React.Component {
             variant="filled"
             style={{ margin: 25, width: 250 }}
             value={this.state.getStudentIdHash}
-            onChange={this.handleChange('cpi')}
+            onChange={this.handleChange("cpi")}
           />
           <br />
           <br />
