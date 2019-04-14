@@ -4,7 +4,7 @@ import { withStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
+// import CardMedia from "@material-ui/core/CardMedia";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
@@ -336,6 +336,8 @@ class Main extends React.Component {
       studentTranscriptHash: "",
       getGradeRows: [],
       getPointRows: [],
+      indexx: 0,
+      index2: 0,
 
       student_details: [],
       semester1: [],
@@ -642,61 +644,97 @@ class Main extends React.Component {
       .catch(console.error);
   };
 
-  getCourseGrades = async () => {
-    let getGradeRows = [];
-    let id = "";
-    const {
-      contract,
-      studentTranscriptHash,
-      course_rows,
-      semesters
-    } = this.state;
+  getPoints = async () => {
+    const { contract, studentTranscriptHash } = this.state;
+    let getPointRows = [];
 
     contract.methods
       .getStudentId(studentTranscriptHash)
       .call()
-      .then(res => {
-        id = res;
-        for (let i = 0; i < semesters.length; i++) {
-          for (let j = 0; j < course_rows.length; j++) {
-            let c = 0;
+      .then(sid => {
+        for (let i = 0; i < 8; i++) {
+          let studentId = sid;
+          console.log(studentId)
+
+          contract.methods.getPointsHash(studentId, i + 1).call().then(value => {
+            console.log(value)
             contract.methods
-              .getCourseGradeHash(
-                id,
-                semesters[i].value,
-                course_rows[i].courseId
-              )
+              .getPoints(value)
+              .call()
+              .then(res => {
+                if (
+                  res[0] === 0 ||
+                  res[1] === 0 ||
+                  res[2] === "" ||
+                  res[3] === ""
+                ) {
+                } else {
+                  getPointRows[this.state.index2] = {
+                    id: this.state.index2,
+                    studentId: res[0],
+                    semester: res[1],
+                    spi: res[2],
+                    cpi: res[3]
+                  };
+                  console.log(getPointRows[this.state.index2]);
+                  console.log(this.state.index2);
+                  this.setState({
+                    getPointRows,
+                    index2: this.state.index2 + 1
+                  });
+                }
+              });
+          });
+        }
+      });
+  };
+
+  getCourseGrades = async () => {
+    const { contract, studentTranscriptHash, course_rows } = this.state;
+    let getGradeRows = [];
+
+    contract.methods
+      .getStudentId(studentTranscriptHash)
+      .call()
+      .then(sid => {
+        for (let i = 0; i < 8; i++) {
+          for (let j = 0; j < course_rows.length; j++) {
+            let studentId = sid;
+
+            contract.methods
+              .getCourseGradeHash(studentId, course_rows[j].courseId, i + 1)
               .call()
               .then(value => {
                 contract.methods
                   .getCourseGrade(value)
                   .call()
-                  .then(answer => {
+                  .then(res => {
                     if (
-                      answer[1] !== "" ||
-                      answer[2] !== "" ||
-                      answer[3] !== ""
+                      res[0] === 0 ||
+                      res[1] === "" ||
+                      res[2] === 0 ||
+                      res[3] === ""
                     ) {
-                      getGradeRows[c] = {
-                        id: c,
-                        studentId: answer[0],
-                        courseId: answer[1],
-                        semester: answer[2],
-                        grade: answer[3]
+                    } else {
+                      getGradeRows[this.state.indexx] = {
+                        id: this.state.indexx,
+                        studentId: res[0],
+                        courseId: res[1],
+                        semester: res[2],
+                        grade: res[3]
                       };
+
+                      this.setState({
+                        getGradeRows,
+                        indexx: this.state.indexx + 1
+                      });
                     }
                   });
               });
-            this.setState({ getGradeRows });
-            c = c + 1;
           }
         }
       });
-
-    console.log(getGradeRows);
   };
-
-  getPoints = async () => {};
 
   getTranscript = async () => {
     let student_details = [];
@@ -714,8 +752,8 @@ class Main extends React.Component {
         };
         this.setState({ student_details });
       })
-      .then(this.getCourseGrades);
-    // .then(this.getPoints);
+      .then(this.getCourseGrades)
+      .then(this.getPoints);
   };
 
   // add course button
@@ -747,7 +785,6 @@ class Main extends React.Component {
     this.setState({ open7: true });
     let studentHash;
     const { getStudentIdHash, contract } = this.state;
-    console.log(getStudentIdHash);
     if (getStudentIdHash !== null) {
       contract.methods
         .getHash(getStudentIdHash)
@@ -846,7 +883,14 @@ class Main extends React.Component {
     const { classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
-    const { course_rows, semPointsRows, courseGradeRows, courses, getGradeRows } = this.state;
+    const {
+      course_rows,
+      semPointsRows,
+      courseGradeRows,
+      courses,
+      getGradeRows,
+      getPointRows
+    } = this.state;
     return (
       <Grid
         container
@@ -1708,48 +1752,88 @@ class Main extends React.Component {
                         <GetIcon className={classes.rightIcon} />
                       </Button>
                     </div>
-<br/>
-                    <Paper className={classes.root1} style={{ marginTop: 80, width: 800 }}>
-                    <Table className={classes.table1}>
-                      <TableHead>
-                        <TableRow>
-                          <CustomTableCell align="left">
-                            Student Id
-                          </CustomTableCell>
-                          <CustomTableCell align="left">
-                            Semester
-                          </CustomTableCell>
-                          <CustomTableCell align="left">
-                            Course Id
-                          </CustomTableCell>
-                          <CustomTableCell align="center">
-                            Course Grade
-                          </CustomTableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {getGradeRows.map(row => (
-                          <TableRow className={classes.row} key={row.id}>
+                    <br />
+                    <Paper
+                      className={classes.root1}
+                      style={{ marginTop: 80, width: 800 }}
+                    >
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
                             <CustomTableCell align="left">
-                              {row.studentId}
+                              Student Id
                             </CustomTableCell>
                             <CustomTableCell align="left">
-                              {row.semester}
+                              Semester
                             </CustomTableCell>
                             <CustomTableCell align="left">
-                              {row.courseId}
+                              Course Id
                             </CustomTableCell>
                             <CustomTableCell align="center">
-                              {row.grade}
+                              Course Grade
                             </CustomTableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Paper>
+                        </TableHead>
+                        <TableBody>
+                          {getGradeRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.studentId}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.courseId}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.grade}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Paper>
+                    <Paper
+                      className={classes.root1}
+                      style={{ marginTop: 80, width: 800 }}
+                    >
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Student Id
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              Semester
+                            </CustomTableCell>
+                            <CustomTableCell align="left">SPI</CustomTableCell>
+                            <CustomTableCell align="center">
+                              SPI
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {getPointRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.studentId}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.spi}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.cpi}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Paper>
                   </Grid>
-
-
                 </Dialog>
               </div>
             </ul>
