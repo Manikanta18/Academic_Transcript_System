@@ -188,12 +188,60 @@ function getSteps() {
   return ["Course Id", "Edit"];
 }
 
+//stepper student
+function getStepsStudent() {
+  return ["Student Id", "Edit"];
+}
+
+//stepper course
+function getStepsCourse() {
+  return ["Cousre Id", "Edit"];
+}
+
+//stepper sem
+function getStepspoint() {
+  return ["Semester", "Edit"];
+}
+
 function getStepContent(step) {
   switch (step) {
     case 0:
       return `Provide the Course Id to Edit`;
     case 1:
       return "You can Modify the Course Details";
+    default:
+      return "Unknown step";
+  }
+}
+
+function getStepContentStudent(step) {
+  switch (step) {
+    case 0:
+      return `Provide the Student Id to Edit`;
+    case 1:
+      return "You can Modify the Student Details";
+    default:
+      return "Unknown step";
+  }
+}
+
+function getStepContentCourse(step) {
+  switch (step) {
+    case 0:
+      return `Provide the Course Id to Edit`;
+    case 1:
+      return "You can Modify the Course Details";
+    default:
+      return "Unknown step";
+  }
+}
+
+function getStepContentPoint(step) {
+  switch (step) {
+    case 0:
+      return `Provide the Semester to Edit`;
+    case 1:
+      return "You can Modify the semester points Details";
     default:
       return "Unknown step";
   }
@@ -302,6 +350,9 @@ class Main extends React.Component {
       open6: false,
       open7: false,
       activeStep: 0,
+      activeStepStudent: 0,
+      activeStepCourse: 0,
+      activeStepPoint: 0,
 
       web3: null,
       accounts: null,
@@ -332,6 +383,20 @@ class Main extends React.Component {
       semPointsRows: [],
       courseIndex: 0,
       semIndex: 0,
+
+      editstudentId: null,
+      editstudnetName: null,
+      editdptType: null,
+      editbatchYear: null,
+      editcId: null,
+      editcGrade: null,
+      editsem: null,
+      editcpi: null,
+      editspi: null,
+      editsem2: null,
+      dummyStudent: null,
+      dummyGrade: null,
+      dummyPoints: null,
 
       studentTranscriptHash: "",
       getGradeRows: [],
@@ -604,6 +669,90 @@ class Main extends React.Component {
     }
   };
 
+  modifyStudentMethod = async () => {
+    const {
+      accounts,
+      editstudentId,
+      editstudnetName,
+      editbatchYear,
+      editdptType,
+      activeStepStudent,
+      contract
+    } = this.state;
+
+    const steps = getStepsStudent();
+
+    this.setState(state => ({
+      activeStepStudent: state.activeStepStudent + 1
+    }));
+
+    if (activeStepStudent === steps.length - 1) {
+      if (
+        editstudnetName === "" ||
+        editdptType === "" ||
+        editstudentId === 0 ||
+        editbatchYear === 0
+      ) {
+      } else {
+        contract.methods
+          .getHash(editstudentId)
+          .call()
+          .then(hash => {
+            contract.methods
+              .changeStudentDetails(
+                hash,
+                editstudnetName,
+                editbatchYear,
+                editdptType
+              )
+              .send({ from: accounts[0] })
+              .then(
+                this.setState({
+                  editstudnetName: null,
+                  editbatchYear: null,
+                  editdptType: null
+                })
+              );
+          });
+      }
+    } else {
+      if (editstudentId !== null) {
+        let dummyStudent;
+
+        contract.methods
+          .getHash(editstudentId)
+          .call()
+          .then(hash => {
+            contract.methods
+              .getStudentDetails(hash)
+              .call()
+              .then(res => {
+                console.log(res);
+                dummyStudent = {
+                  studentId: res[0],
+                  studentName: res[1],
+                  dptType: res[2],
+                  batchYear: res[3]
+                };
+                this.setState({ dummyStudent });
+                this.setState({
+                  editstudnetName: res[1]
+                });
+                this.setState({
+                  editdptType: res[2]
+                });
+                this.setState({
+                  editbatchYear: res[3]
+                });
+                console.log(res[2]);
+              });
+          });
+      } else {
+        this.setState({ activeStepStudent: 0 });
+      }
+    }
+  };
+
   //get course method
   getCourseMethod = async () => {
     let course_rows = [];
@@ -654,37 +803,40 @@ class Main extends React.Component {
       .then(sid => {
         for (let i = 0; i < 8; i++) {
           let studentId = sid;
-          console.log(studentId)
+          console.log(studentId);
 
-          contract.methods.getPointsHash(studentId, i + 1).call().then(value => {
-            console.log(value)
-            contract.methods
-              .getPoints(value)
-              .call()
-              .then(res => {
-                if (
-                  res[0] === 0 ||
-                  res[1] === 0 ||
-                  res[2] === "" ||
-                  res[3] === ""
-                ) {
-                } else {
-                  getPointRows[this.state.index2] = {
-                    id: this.state.index2,
-                    studentId: res[0],
-                    semester: res[1],
-                    spi: res[2],
-                    cpi: res[3]
-                  };
-                  console.log(getPointRows[this.state.index2]);
-                  console.log(this.state.index2);
-                  this.setState({
-                    getPointRows,
-                    index2: this.state.index2 + 1
-                  });
-                }
-              });
-          });
+          contract.methods
+            .getPointsHash(studentId, i + 1)
+            .call()
+            .then(value => {
+              console.log(value);
+              contract.methods
+                .getPoints(value)
+                .call()
+                .then(res => {
+                  if (
+                    res[0] === 0 ||
+                    res[1] === 0 ||
+                    res[2] === "" ||
+                    res[3] === ""
+                  ) {
+                  } else {
+                    getPointRows[this.state.index2] = {
+                      id: this.state.index2,
+                      studentId: res[0],
+                      semester: res[1],
+                      spi: res[2],
+                      cpi: res[3]
+                    };
+                    console.log(getPointRows[this.state.index2]);
+                    console.log(this.state.index2);
+                    this.setState({
+                      getPointRows,
+                      index2: this.state.index2 + 1
+                    });
+                  }
+                });
+            });
         }
       });
   };
@@ -775,6 +927,10 @@ class Main extends React.Component {
     this.setState({ open4: true });
   };
 
+  handleClickOpen5 = () => {
+    this.setState({ open5: true });
+  };
+
   // get stduent button
   handleClickOpen6 = async () => {
     this.setState({ open6: true });
@@ -848,9 +1004,18 @@ class Main extends React.Component {
       spi: null
     });
   };
+  handleClose5 = () => {
+    this.setState({ open5: false });
+  };
 
   handleClose6 = () => {
-    this.setState({ open6: false });
+    this.setState({
+      open6: false,
+      getGradeRows: [],
+      getPointRows: [],
+      student_details: "",
+      studentTranscriptHash: ""
+    });
   };
 
   handleClose7 = () => {
@@ -866,6 +1031,24 @@ class Main extends React.Component {
     }));
   };
 
+  handleBackStudent = () => {
+    this.setState(state => ({
+      activeStepStudent: state.activeStepStudent - 1
+    }));
+  };
+
+  handleBackCourse = () => {
+    this.setState(state => ({
+      activeStepCourse: state.activeStepCourse - 1
+    }));
+  };
+
+  handleBackPoint = () => {
+    this.setState(state => ({
+      activeStepPoint: state.activeStepPoint - 1
+    }));
+  };
+
   handleReset = () => {
     this.setState({
       activeStep: 0,
@@ -875,21 +1058,51 @@ class Main extends React.Component {
     });
   };
 
-  handleCloseSnack = () => {
-    this.setState({ opensnack: false });
+  handleResetStudent = () => {
+    this.setState({
+      activeStepStudent: 0,
+      editstudentId: null,
+      editstudnetName: null,
+      editdptType: null,
+      editbatchYear: null
+    });
+  };
+
+  handleResetCourse = () => {
+    this.setState({
+      activeStepCourse: 0,
+      editcId: null,
+      editsem: null,
+      editcGrade: null
+    });
+  };
+
+  handleResetPoint = () => {
+    this.setState({
+      activeStepPoint: 0,
+      editsem2: null,
+      editspi: null,
+      editcpi: null
+    });
   };
 
   render() {
     const { classes } = this.props;
     const steps = getSteps();
-    const { activeStep } = this.state;
+    const {
+      activeStep,
+      activeStepCourse,
+      activeStepStudent,
+      activeStepPoint
+    } = this.state;
     const {
       course_rows,
       semPointsRows,
       courseGradeRows,
       courses,
       getGradeRows,
-      getPointRows
+      getPointRows,
+      student_details
     } = this.state;
     return (
       <Grid
@@ -1672,10 +1885,551 @@ class Main extends React.Component {
                   color="secondary"
                   className={classes.button}
                   style={{ backgroundColor: "#1565c0" }}
+                  onClick={this.handleClickOpen5}
                 >
                   Edit
                   <Edit className={classes.rightIcon} />
                 </Button>
+
+                <Dialog
+                  fullScreen
+                  open={this.state.open5}
+                  onClose={this.handleClose5}
+                  TransitionComponent={Transition}
+                >
+                  <AppBar
+                    className={classes.appBar}
+                    style={{ position: "sticky" }}
+                  >
+                    <Toolbar>
+                      <Typography
+                        variant="h6"
+                        color="inherit"
+                        className={classes.flex}
+                      >
+                        Modify Transcript
+                      </Typography>
+                      <Button color="inherit" onClick={this.handleClose5}>
+                        Close
+                      </Button>
+                    </Toolbar>
+                  </AppBar>
+
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    style={{ backgroundColor: "#eeeeee", height: "500%" }}
+                  >
+                    <Card
+                      className={classes.card}
+                      style={{ marginTop: 50, height: 750, width: 350 }}
+                    >
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Student Details</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Edit Student Details
+                        </Typography>
+                        <br />
+                      </CardContent>
+                      <Stepper activeStep={activeStepStudent} alternativeLabel>
+                        {steps.map(label => (
+                          <Step key={label}>
+                            <StepLabel>{label}</StepLabel>
+                          </Step>
+                        ))}
+                      </Stepper>
+                      <div>
+                        <Divider />
+                        <br />
+
+                        <TextField
+                          required
+                          autoFocus
+                          disabled={activeStepStudent === 1}
+                          margin="dense"
+                          id="student_id"
+                          label="Student Id"
+                          type="number"
+                          variant="filled"
+                          value={this.state.editstudentId}
+                          style={{ margin: 15, width: 320 }}
+                          className={classes.textField}
+                          onChange={this.handleChange("editstudentId")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                        />
+                        <TextField
+                          required
+                          disabled={activeStepStudent === 0}
+                          margin="dense"
+                          id="student_name"
+                          label="Student Name"
+                          type="text"
+                          variant="filled"
+                          value={this.state.editstudnetName}
+                          style={{ margin: 15, width: 320 }}
+                          className={classes.textField}
+                          onChange={this.handleChange("editstudnetName")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                        />
+                        <TextField
+                          required
+                          disabled={activeStepStudent === 0}
+                          select
+                          margin="dense"
+                          id="department"
+                          label="Department Name"
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          variant="filled"
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                          value={this.state.editdptType}
+                          style={{ margin: 15, width: 320 }}
+                          className={classes.textField}
+                          onChange={this.handleChange("editdptType")}
+                        >
+                          {departments.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <TextField
+                          required
+                          disabled={activeStepStudent === 0}
+                          margin="dense"
+                          id="batch"
+                          label="Batch Year"
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          type="number"
+                          variant="filled"
+                          value={this.state.editbatchYear}
+                          style={{ margin: 15, width: 320 }}
+                          className={classes.textField}
+                          onChange={this.handleChange("editbatchYear")}
+                        />
+                        <br />
+                        <br />
+                        <Divider />
+                        <br />
+
+                        {this.state.activeStepStudent === steps.length ? (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              Student Modified..
+                            </Typography>
+                            <Button
+                              onClick={this.handleResetStudent}
+                              color="primary"
+                              variant="contained"
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        ) : (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              {getStepContent(activeStepStudent)}
+                            </Typography>
+                            <div>
+                              <Button
+                                disabled={activeStepStudent === 0}
+                                onClick={this.handleBackStudent}
+                                className={classes.backButton}
+                              >
+                                Back
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={this.modifyStudentMethod}
+                              >
+                                {activeStepStudent === steps.length - 1
+                                  ? "Finish"
+                                  : "Next"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+
+                    <Card
+                      className={classes.card}
+                      style={{ marginTop: 50, height: 700, width: 350 }}
+                    >
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Edit Course grade</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Edit Student's Course Grade
+                        </Typography>
+                        <br />
+                      </CardContent>
+
+                      <Stepper activeStep={activeStep} alternativeLabel>
+                        {steps.map(label => (
+                          <Step key={label}>
+                            <StepLabel>{label}</StepLabel>
+                          </Step>
+                        ))}
+                      </Stepper>
+                      <div>
+                        <Divider />
+                        <br />
+
+                        <TextField
+                          required
+                          select
+                          disabled={activeStepCourse === 1}
+                          margin="dense"
+                          id="courseid"
+                          label="Course Id"
+                          variant="filled"
+                          value={this.state.editcId}
+                          className={classes.textField}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editcId")}
+                        >
+                          {courses.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <TextField
+                          required
+                          select
+                          disabled={activeStepCourse === 0}
+                          margin="dense"
+                          id="semester1"
+                          label="Semester"
+                          variant="filled"
+                          value={this.state.editsem}
+                          className={classes.textField}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editsem")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                        >
+                          {semesters.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <TextField
+                          required
+                          select
+                          disabled={activeStepCourse === 0}
+                          margin="dense"
+                          id="grade"
+                          label="Grade"
+                          variant="filled"
+                          value={this.state.editcGrade}
+                          className={classes.textField}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editcGrade")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                        >
+                          {grades.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <br />
+                        <br />
+                        <Divider />
+                        <br />
+
+                        {this.state.activeStepCourse === steps.length ? (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              Course Grade Modified..
+                            </Typography>
+                            <Button
+                              onClick={this.handleResetCourse}
+                              color="primary"
+                              variant="contained"
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        ) : (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              {getStepContent(activeStepCourse)}
+                            </Typography>
+                            <div>
+                              <Button
+                                disabled={activeStepCourse === 0}
+                                onClick={this.handleBackCourse}
+                                className={classes.backButton}
+                              >
+                                Back
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                // onClick={this.m}
+                              >
+                                {activeStepCourse === steps.length - 1
+                                  ? "Finish"
+                                  : "Next"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+
+                    <Card
+                      className={classes.card}
+                      style={{ marginTop: 50, height: 700, width: 350 }}
+                    >
+                      <CardContent>
+                        <Typography
+                          className={classes.title}
+                          color="textSecondary"
+                          gutterBottom
+                        >
+                          <b>Edit Semester Points</b>
+                        </Typography>
+                        <br />
+                        <Typography component="p">
+                          Edit Student's Semester Points
+                        </Typography>
+                        <br />
+                      </CardContent>
+
+                      <Stepper activeStep={activeStep} alternativeLabel>
+                        {steps.map(label => (
+                          <Step key={label}>
+                            <StepLabel>{label}</StepLabel>
+                          </Step>
+                        ))}
+                      </Stepper>
+                      <div>
+                        <Divider />
+                        <br />
+
+                        <TextField
+                          required
+                          select
+                          disabled={activeStepPoint === 1}
+                          margin="dense"
+                          id="semester2"
+                          label="Semester"
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                          variant="filled"
+                          value={this.state.editsem2}
+                          className={classes.textField}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editsem2")}
+                          SelectProps={{
+                            MenuProps: {
+                              className: classes.menu
+                            }
+                          }}
+                        >
+                          {semesters.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </TextField>
+                        <TextField
+                          required
+                          disabled={activeStepPoint === 0}
+                          margin="dense"
+                          id="spi"
+                          label="SPI"
+                          type="text"
+                          variant="filled"
+                          value={this.state.editspi}
+                          className={classes.textField}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editspi")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                        />
+                        <TextField
+                          required
+                          disabled={activeStepPoint === 0}
+                          margin="dense"
+                          id="cpi"
+                          label="CPI"
+                          type="text"
+                          variant="filled"
+                          value={this.state.editcpi}
+                          className={classes.textField}
+                          style={{ margin: 15, width: 320 }}
+                          onChange={this.handleChange("editcpi")}
+                          InputLabelProps={{
+                            shrink: true
+                          }}
+                        />
+                        <br />
+                        <br />
+                        <Divider />
+                        <br />
+
+                        {this.state.activeStepPoint === steps.length ? (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              points Modified..
+                            </Typography>
+                            <Button
+                              onClick={this.handleResetPoint}
+                              color="primary"
+                              variant="contained"
+                            >
+                              Reset
+                            </Button>
+                          </div>
+                        ) : (
+                          <div>
+                            <Typography className={classes.instructions}>
+                              {getStepContent(activeStepPoint)}
+                            </Typography>
+                            <div>
+                              <Button
+                                disabled={activeStepPoint === 0}
+                                onClick={this.handleBackPoint}
+                                className={classes.backButton}
+                              >
+                                Back
+                              </Button>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                // onClick={this.m}
+                              >
+                                {activeStepPoint === steps.length - 1
+                                  ? "Finish"
+                                  : "Next"}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </Card>
+
+                    <Paper className={classes.root1} style={{ marginTop: 80 }}>
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Semester
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              Course Id
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              Course Grade
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {getGradeRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.courseId}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.grade}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Paper>
+
+                    <Paper className={classes.root1} style={{ marginTop: 80 }}>
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Semester
+                            </CustomTableCell>
+                            <CustomTableCell align="left">SPI</CustomTableCell>
+                            <CustomTableCell align="center">
+                              CPI
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {getPointRows.map(row => (
+                            <TableRow className={classes.row} key={row.id}>
+                              <CustomTableCell align="left">
+                                {row.semester}
+                              </CustomTableCell>
+                              <CustomTableCell align="left">
+                                {row.spi}
+                              </CustomTableCell>
+                              <CustomTableCell align="center">
+                                {row.cpi}
+                              </CustomTableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </Paper>
+                  </Grid>
+                </Dialog>
               </div>
               {/*---------------------------- Get Student Transcript--------------------- */}
               <div>
@@ -1753,10 +2507,65 @@ class Main extends React.Component {
                       </Button>
                     </div>
                     <br />
+
                     <Paper
                       className={classes.root1}
                       style={{ marginTop: 80, width: 800 }}
                     >
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        style={{ margin: 10, padding: 10 }}
+                      >
+                        Student Details
+                      </Typography>
+                      <Table className={classes.table1}>
+                        <TableHead>
+                          <TableRow>
+                            <CustomTableCell align="left">
+                              Student Id
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              Student name
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              Department
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              Batch
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          <TableRow className={classes.row}>
+                            <CustomTableCell align="left">
+                              {student_details.studentId}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {student_details.studentName}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {student_details.dptType}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {student_details.batchYear}
+                            </CustomTableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </Paper>
+
+                    <Paper
+                      className={classes.root1}
+                      style={{ marginTop: 80, width: 800 }}
+                    >
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        style={{ margin: 10, padding: 10 }}
+                      >
+                        Course Grades
+                      </Typography>
                       <Table className={classes.table1}>
                         <TableHead>
                           <TableRow>
@@ -1798,6 +2607,13 @@ class Main extends React.Component {
                       className={classes.root1}
                       style={{ marginTop: 80, width: 800 }}
                     >
+                      <Typography
+                        variant="h5"
+                        component="h3"
+                        style={{ margin: 10, padding: 10 }}
+                      >
+                        Semester Points
+                      </Typography>
                       <Table className={classes.table1}>
                         <TableHead>
                           <TableRow>
@@ -1809,7 +2625,7 @@ class Main extends React.Component {
                             </CustomTableCell>
                             <CustomTableCell align="left">SPI</CustomTableCell>
                             <CustomTableCell align="center">
-                              SPI
+                              CPI
                             </CustomTableCell>
                           </TableRow>
                         </TableHead>
