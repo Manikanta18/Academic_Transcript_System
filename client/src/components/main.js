@@ -453,9 +453,49 @@ class Main extends React.Component {
     }
   };
 
+  addTranscriptCourses = () => {
+    const { accounts, studentId, courseGradeRows, contract } = this.state;
+    for (let i = 0; i < courseGradeRows.length; i++) {
+      contract.methods
+        .addCourseGrade(
+          studentId,
+          courseGradeRows[i].courseId,
+          courseGradeRows[i].semester,
+          courseGradeRows[i].grade
+        )
+        .send({ from: accounts[0] });
+
+      console.log(courseGradeRows[i].courseId);
+    }
+  };
+
+  addTranscriptSems = () => {
+    const { accounts, studentId, semPointsRows, contract } = this.state;
+          for (let i = 0; i < semPointsRows.length; i++) {
+            contract.methods
+              .addPoints(
+                studentId,
+                semPointsRows[i].semester,
+                semPointsRows[i].spi,
+                semPointsRows[i].cpi
+              )
+              .send({ from: accounts[0] });
+
+            console.log(semPointsRows[i].semester);
+          }
+  }
+
   //add transcript fun
   addTranscriptMethod = async () => {
-    const { accounts, studentId, studnetName, dptType, batchYear, courseGradeRows, semPointsRows } = this.state;
+    const {
+      accounts,
+      studentId,
+      studnetName,
+      dptType,
+      batchYear,
+      courseGradeRows,
+      semPointsRows
+    } = this.state;
     let random_value;
 
     random_value = randomstring.generate({
@@ -467,8 +507,11 @@ class Main extends React.Component {
       studentId === 0 ||
       studnetName === "" ||
       dptType === "" ||
-      batchYear === 0
+      batchYear === 0 ||
+      courseGradeRows.length === 0 ||
+      semPointsRows.length === 0
     ) {
+      console.log("nothing Happnend");
     } else {
       this.state.contract.methods
         .addStudentDetails(
@@ -479,8 +522,10 @@ class Main extends React.Component {
           batchYear
         )
         .send({ from: accounts[0] })
-        .then(this.setState({ open1: false }));
+        .then(this.addTranscriptCourses)
+        .then(this.addTranscriptSems);
     }
+    // this.setState({ open4: false });
   };
 
   modifyCourseMethod = async () => {
@@ -638,7 +683,7 @@ class Main extends React.Component {
     this.setState({ open7: true });
     let studentHash;
     const { getStudentIdHash, contract } = this.state;
-
+    console.log(getStudentIdHash);
     if (getStudentIdHash !== null) {
       contract.methods
         .getHash(getStudentIdHash)
@@ -1438,7 +1483,7 @@ class Main extends React.Component {
                           width: 350,
                           height: 50
                         }}
-                        // onClick={this.handleClickOpen7}
+                        onClick={this.addTranscriptMethod}
                       >
                         Submit Transcript
                         <AddCircle className={classes.rightIcon} />
@@ -1598,7 +1643,7 @@ class Main extends React.Component {
             variant="outlined"
             style={{ margin: 25, width: 250 }}
             value={this.state.getStudentIdHash}
-            onChange={this.handleChange("cpi")}
+            onChange={this.handleChange("getStudentIdHash")}
             InputLabelProps={{
               shrink: true
             }}
