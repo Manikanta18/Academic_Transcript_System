@@ -23,6 +23,8 @@ contract Transcript {
     }
 
     uint16 public coursesCount;
+    uint16 public courseGradeCount;
+    uint16 public semPointsCount;
     modifier courseIdCheck(uint courseId) { require( courseId < coursesCount ); _;}
 
     // Enumeration for semesters
@@ -194,7 +196,7 @@ contract Transcript {
         courseGrades[hashvalue].courseId = _courseId;
         courseGrades[hashvalue].semester = semesters(_semester);
         courseGrades[hashvalue].grade = _grade;
-
+        courseGradeCount =  courseGradeCount +1;
         emit courseGradeAdded(hashvalue);
     }
     
@@ -220,6 +222,8 @@ contract Transcript {
         totalPoints[hashvalue].semester = semesters(_semester);
         totalPoints[hashvalue].spi = _spi;
         totalPoints[hashvalue].cpi = _cpi;
+
+        semPointsCount = semPointsCount+1;
         emit gradePointAdded(hashvalue);
         
     }
@@ -310,6 +314,16 @@ contract Transcript {
             }
         }
     }
+
+        // get studentId of a student transcript
+    function getStudentId(bytes32 _hash) public view returns (uint32){
+        for(uint16 i =0; i< studenthashes.length; i++) {
+
+            if(studenthashes[i].hashvalue == _hash) {
+                    return (studenthashes[i].studentId);
+            }
+        }
+    }
     
     // get hash of a course grade
     function getCourseGradeHash(uint32 _studentId, string memory _courseId, uint8 _semester) public view returns (bytes32){
@@ -357,17 +371,17 @@ contract Transcript {
     }
     
     // get course grade -- transcript
-    function getCourseGrade(bytes32 hashvalue, string memory _courseId) public view returns(uint32, string memory, uint8, string memory) {
-        if(keccak256(abi.encodePacked(courseGrades[hashvalue].courseId)) == keccak256(abi.encodePacked(_courseId))){
+    function getCourseGrade(bytes32 hashvalue) public view returns(uint32, string memory, uint8, string memory) {
+        // if(keccak256(abi.encodePacked(courseGrades[hashvalue].courseId)) == keccak256(abi.encodePacked(_courseId))){
             return(courseGrades[hashvalue].studentId, courseGrades[hashvalue].courseId, uint8(courseGrades[hashvalue].semester), courseGrades[hashvalue].grade );
-        }        
+        // }       
     }
     
     // get point grade -- transcript
-    function getPoints(bytes32 hashvalue, uint8 _semester) public view returns(uint32, uint8, string memory, string memory) {
-        if(uint8(totalPoints[hashvalue].semester) == _semester){
+    function getPoints(bytes32 hashvalue) public view returns(uint32, uint8, string memory, string memory) {
+        // if(uint8(totalPoints[hashvalue].semester) == _semester){
             return(totalPoints[hashvalue].studentId, uint8(totalPoints[hashvalue].semester), totalPoints[hashvalue].spi, totalPoints[hashvalue].cpi );
-        }        
+        // }        
     }
     
 

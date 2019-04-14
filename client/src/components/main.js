@@ -56,6 +56,14 @@ const styles = theme => ({
     padding: 25
   },
 
+  card_search: {
+    minWidth: 1000,
+    minHeight: 100,
+    height: 100,
+    margin: 50,
+    padding: 50
+  },
+
   formCard: {
     minWidth: 400,
     minHeight: 150,
@@ -325,15 +333,19 @@ class Main extends React.Component {
       courseIndex: 0,
       semIndex: 0,
 
-      // student_details: [],
-      // semester1: [],
-      // semester2: [],
-      // semester3: [],
-      // semester4: [],
-      // semester5: [],
-      // semester6: [],
-      // semester7: [],
-      // semester8: [],
+      studentTranscriptHash: "",
+      getGradeRows: [],
+      getPointRows: [],
+
+      student_details: [],
+      semester1: [],
+      semester2: [],
+      semester3: [],
+      semester4: [],
+      semester5: [],
+      semester6: [],
+      semester7: [],
+      semester8: [],
 
       getStudentId: null,
       getStudentIdHash: null,
@@ -471,19 +483,19 @@ class Main extends React.Component {
 
   addTranscriptSems = () => {
     const { accounts, studentId, semPointsRows, contract } = this.state;
-          for (let i = 0; i < semPointsRows.length; i++) {
-            contract.methods
-              .addPoints(
-                studentId,
-                semPointsRows[i].semester,
-                semPointsRows[i].spi,
-                semPointsRows[i].cpi
-              )
-              .send({ from: accounts[0] });
+    for (let i = 0; i < semPointsRows.length; i++) {
+      contract.methods
+        .addPoints(
+          studentId,
+          semPointsRows[i].semester,
+          semPointsRows[i].spi,
+          semPointsRows[i].cpi
+        )
+        .send({ from: accounts[0] });
 
-            console.log(semPointsRows[i].semester);
-          }
-  }
+      console.log(semPointsRows[i].semester);
+    }
+  };
 
   //add transcript fun
   addTranscriptMethod = async () => {
@@ -630,6 +642,82 @@ class Main extends React.Component {
       .catch(console.error);
   };
 
+  getCourseGrades = async () => {
+    let getGradeRows = [];
+    let id = "";
+    const {
+      contract,
+      studentTranscriptHash,
+      course_rows,
+      semesters
+    } = this.state;
+
+    contract.methods
+      .getStudentId(studentTranscriptHash)
+      .call()
+      .then(res => {
+        id = res;
+        for (let i = 0; i < semesters.length; i++) {
+          for (let j = 0; j < course_rows.length; j++) {
+            let c = 0;
+            contract.methods
+              .getCourseGradeHash(
+                id,
+                semesters[i].value,
+                course_rows[i].courseId
+              )
+              .call()
+              .then(value => {
+                contract.methods
+                  .getCourseGrade(value)
+                  .call()
+                  .then(answer => {
+                    if (
+                      answer[1] !== "" ||
+                      answer[2] !== "" ||
+                      answer[3] !== ""
+                    ) {
+                      getGradeRows[c] = {
+                        id: c,
+                        studentId: answer[0],
+                        courseId: answer[1],
+                        semester: answer[2],
+                        grade: answer[3]
+                      };
+                    }
+                  });
+              });
+            this.setState({ getGradeRows });
+            c = c + 1;
+          }
+        }
+      });
+
+    console.log(getGradeRows);
+  };
+
+  getPoints = async () => {};
+
+  getTranscript = async () => {
+    let student_details = [];
+    const { contract, studentTranscriptHash } = this.state;
+
+    contract.methods
+      .getStudentDetails(studentTranscriptHash)
+      .call()
+      .then(res => {
+        student_details = {
+          studentId: res[0],
+          studentName: res[1],
+          dptType: res[2],
+          batchYear: res[3]
+        };
+        this.setState({ student_details });
+      })
+      .then(this.getCourseGrades);
+    // .then(this.getPoints);
+  };
+
   // add course button
   handleClickOpen1 = () => {
     this.setState({ open1: true });
@@ -652,30 +740,6 @@ class Main extends React.Component {
   // get stduent button
   handleClickOpen6 = async () => {
     this.setState({ open6: true });
-    // let student_details = [];
-    // const { contract, getStudentId } = this.state;
-
-    // contract.methods
-    //   .getHash(getStudentId)
-    //   .call()
-    //   .then(value => {
-    //     contract.methods
-    //       .getStudentDetails(value)
-    //       .call()
-    //       .then(res => {
-    //         student_details = {
-    //           studentId: res[0],
-    //           studentName: res[1],
-    //           dptType: res[2],
-    //           batchYear: res[3]
-    //         };
-    //       })
-    //       .catch(console.error)
-    //       .finally(() => {
-    //         this.setState({ student_details });
-    //         console.log(student_details);
-    //       });
-    //   });
   };
 
   //get student Hash
@@ -782,7 +846,7 @@ class Main extends React.Component {
     const { classes } = this.props;
     const steps = getSteps();
     const { activeStep } = this.state;
-    const { course_rows, semPointsRows, courseGradeRows, courses } = this.state;
+    const { course_rows, semPointsRows, courseGradeRows, courses, getGradeRows } = this.state;
     return (
       <Grid
         container
@@ -844,7 +908,7 @@ class Main extends React.Component {
                       label="Course Id"
                       type="text"
                       style={{ width: 350 }}
-                      variant="outlined"
+                      variant="filled"
                       value={this.state.courseId}
                       // onChange={event => this.handleChange(event)}
                       onChange={this.handleChange("courseId")}
@@ -860,7 +924,7 @@ class Main extends React.Component {
                       id="course_name"
                       label="Course Name"
                       type="text"
-                      variant="outlined"
+                      variant="filled"
                       style={{ width: 350 }}
                       value={this.state.courseName}
                       onChange={this.handleChange("courseName")}
@@ -939,7 +1003,7 @@ class Main extends React.Component {
                         InputLabelProps={{
                           shrink: true
                         }}
-                        variant="outlined"
+                        variant="filled"
                         style={{ width: 350 }}
                         SelectProps={{
                           MenuProps: {
@@ -966,7 +1030,7 @@ class Main extends React.Component {
                         InputLabelProps={{
                           shrink: true
                         }}
-                        variant="outlined"
+                        variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseName}
                         onChange={this.handleChange("editCourseName")}
@@ -982,7 +1046,7 @@ class Main extends React.Component {
                           shrink: true
                         }}
                         margin="dense"
-                        variant="outlined"
+                        variant="filled"
                         style={{ width: 350 }}
                         value={this.state.editCourseCredits}
                         onChange={this.handleChange("editCourseCredits")}
@@ -1199,7 +1263,7 @@ class Main extends React.Component {
                           id="student_id"
                           label="Student Id"
                           type="number"
-                          variant="outlined"
+                          variant="filled"
                           value={this.state.studentId}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
@@ -1214,7 +1278,7 @@ class Main extends React.Component {
                           id="student_name"
                           label="Student Name"
                           type="text"
-                          variant="outlined"
+                          variant="filled"
                           value={this.state.studnetName}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
@@ -1232,7 +1296,7 @@ class Main extends React.Component {
                           InputLabelProps={{
                             shrink: true
                           }}
-                          variant="outlined"
+                          variant="filled"
                           SelectProps={{
                             MenuProps: {
                               className: classes.menu
@@ -1258,7 +1322,7 @@ class Main extends React.Component {
                             shrink: true
                           }}
                           type="number"
-                          variant="outlined"
+                          variant="filled"
                           value={this.state.batchYear}
                           style={{ margin: 15, width: 250 }}
                           className={classes.textField}
@@ -1290,7 +1354,7 @@ class Main extends React.Component {
                             margin="dense"
                             id="courseid"
                             label="Course Id"
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.cId}
                             className={classes.textField}
                             InputLabelProps={{
@@ -1316,7 +1380,7 @@ class Main extends React.Component {
                             margin="dense"
                             id="semester1"
                             label="Semester"
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.sem}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1342,7 +1406,7 @@ class Main extends React.Component {
                             margin="dense"
                             id="grade"
                             label="Grade"
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.cGrade}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1407,7 +1471,7 @@ class Main extends React.Component {
                             InputLabelProps={{
                               shrink: true
                             }}
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.sem2}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1430,7 +1494,7 @@ class Main extends React.Component {
                             id="spi"
                             label="SPI"
                             type="text"
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.spi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1445,7 +1509,7 @@ class Main extends React.Component {
                             id="cpi"
                             label="CPI"
                             type="text"
-                            variant="outlined"
+                            variant="filled"
                             value={this.state.cpi}
                             className={classes.textField}
                             style={{ margin: 15, width: 250 }}
@@ -1602,15 +1666,90 @@ class Main extends React.Component {
                       </Button>
                     </Toolbar>
                   </AppBar>
-                  <Paper>
-                    <Card className={classes.card}>
-                      <CardMedia
-                        className={classes.media}
-                        image="./iiit_logo.png"
-                        title="logo"
-                      />
-                    </Card>
+
+                  <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center"
+                    style={{ backgroundColor: "#eeeeee", height: "500%" }}
+                  >
+                    <TextField
+                      autoFocus
+                      required
+                      margin="dense"
+                      id="student_id"
+                      label="Student Hash"
+                      type="nutextmber"
+                      variant="filled"
+                      style={{ margin: 25, width: 750, height: 100 }}
+                      value={this.state.studentTranscriptHash}
+                      onChange={this.handleChange("studentTranscriptHash")}
+                      InputLabelProps={{
+                        shrink: true
+                      }}
+                    />
+
+                    <div>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        style={{
+                          backgroundColor: "#0d47a1",
+                          margin: 50,
+                          height: 55,
+                          marginTop: 5,
+                          width: 250
+                        }}
+                        onClick={this.getTranscript}
+                      >
+                        Get Transcript
+                        <GetIcon className={classes.rightIcon} />
+                      </Button>
+                    </div>
+<br/>
+                    <Paper className={classes.root1} style={{ marginTop: 80, width: 800 }}>
+                    <Table className={classes.table1}>
+                      <TableHead>
+                        <TableRow>
+                          <CustomTableCell align="left">
+                            Student Id
+                          </CustomTableCell>
+                          <CustomTableCell align="left">
+                            Semester
+                          </CustomTableCell>
+                          <CustomTableCell align="left">
+                            Course Id
+                          </CustomTableCell>
+                          <CustomTableCell align="center">
+                            Course Grade
+                          </CustomTableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {getGradeRows.map(row => (
+                          <TableRow className={classes.row} key={row.id}>
+                            <CustomTableCell align="left">
+                              {row.studentId}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.semester}
+                            </CustomTableCell>
+                            <CustomTableCell align="left">
+                              {row.courseId}
+                            </CustomTableCell>
+                            <CustomTableCell align="center">
+                              {row.grade}
+                            </CustomTableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </Paper>
+                  </Grid>
+
+
                 </Dialog>
               </div>
             </ul>
@@ -1640,7 +1779,7 @@ class Main extends React.Component {
             id="student_id"
             label="Student Id"
             type="number"
-            variant="outlined"
+            variant="filled"
             style={{ margin: 25, width: 250 }}
             value={this.state.getStudentIdHash}
             onChange={this.handleChange("getStudentIdHash")}
