@@ -669,7 +669,6 @@ class Main extends React.Component {
     }
   };
 
-
   modifyPoints = async () => {
     const {
       accounts,
@@ -691,12 +690,12 @@ class Main extends React.Component {
       if (
         editcpi === "" ||
         editspi === "" ||
-        editstudentId === 0 ||
-        editsem2 === 0
+        editstudentId === "" ||
+        editsem2 === ""
       ) {
       } else {
         contract.methods
-          .changePoints( editstudentId, editsem2, editspi, editcpi)
+          .changePoints(editstudentId, editsem2, editspi, editcpi)
           .send({ from: accounts[0] })
           .then(
             this.setState({
@@ -707,7 +706,9 @@ class Main extends React.Component {
           );
       }
     } else {
-      if (editspi !== "" || editsem2!== 0 || editcpi !== "" || editstudentId !== "" ) {
+      if (editsem2 === null || editstudentId === null) {
+        this.setState({ activeStepPoint: 0 });
+      } else {
         let dummyPoints;
 
         contract.methods
@@ -732,8 +733,6 @@ class Main extends React.Component {
                 console.log(res[3], res[2]);
               });
           });
-      } else {
-        this.setState({ activeStepPoint: 0 });
       }
     }
   };
@@ -759,12 +758,12 @@ class Main extends React.Component {
       if (
         editcId === "" ||
         editcGrade === "" ||
-        editstudentId === 0 ||
-        editsem === 0
+        editstudentId === "" ||
+        editsem === ""
       ) {
       } else {
         contract.methods
-          .changeCourseGrade( editstudentId, editcId, editsem, editcGrade)
+          .changeCourseGrade(editstudentId, editcId, editsem, editcGrade)
           .send({ from: accounts[0] })
           .then(
             this.setState({
@@ -775,7 +774,14 @@ class Main extends React.Component {
           );
       }
     } else {
-      if (editcId !== null || editsem!== 0 || editcGrade !== "" || editstudentId !== "" ) {
+      if (
+        editcId === null ||
+        editsem === null ||
+        editcGrade === "" ||
+        editstudentId === ""
+      ) {
+        this.setState({ activeStepCourse: 0 });
+      } else {
         let dummyGrade;
 
         contract.methods
@@ -799,8 +805,6 @@ class Main extends React.Component {
                 console.log(res[3]);
               });
           });
-      } else {
-        this.setState({ activeStepCourse: 0 });
       }
     }
   };
@@ -826,8 +830,8 @@ class Main extends React.Component {
       if (
         editstudnetName === "" ||
         editdptType === "" ||
-        editstudentId === 0 ||
-        editbatchYear === 0
+        editstudentId === "" ||
+        editbatchYear === ""
       ) {
       } else {
         contract.methods
@@ -1152,8 +1156,11 @@ class Main extends React.Component {
       editsem: "",
       editsem2: "",
       editspi: "",
-      editcpi: ""
-    })
+      editcpi: "",
+      activeStepCourse: 0,
+      activeStepPoint: 0,
+      activeStepStudent: 0
+    });
   };
 
   handleClose6 = () => {
