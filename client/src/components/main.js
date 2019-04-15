@@ -2513,7 +2513,7 @@ class Main extends React.Component {
                       </div>
                     </Card>
 
-                    <Paper className={classes.root1} style={{ marginTop: 80 }}>
+                    {/* <Paper className={classes.root1} style={{ marginTop: 80 }}>
                       <Table className={classes.table1}>
                         <TableHead>
                           <TableRow>
@@ -2575,7 +2575,7 @@ class Main extends React.Component {
                           ))}
                         </TableBody>
                       </Table>
-                    </Paper>
+                    </Paper> */}
                   </Grid>
                 </Dialog>
               </div>
