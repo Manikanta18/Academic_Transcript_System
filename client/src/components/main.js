@@ -669,6 +669,142 @@ class Main extends React.Component {
     }
   };
 
+
+  modifyPoints = async () => {
+    const {
+      accounts,
+      editsem2,
+      editspi,
+      editcpi,
+      contract,
+      activeStepPoint,
+      editstudentId
+    } = this.state;
+
+    const steps = getStepspoint();
+
+    this.setState(state => ({
+      activeStepPoint: state.activeStepPoint + 1
+    }));
+
+    if (activeStepPoint === steps.length - 1) {
+      if (
+        editcpi === "" ||
+        editspi === "" ||
+        editstudentId === 0 ||
+        editsem2 === 0
+      ) {
+      } else {
+        contract.methods
+          .changePoints( editstudentId, editsem2, editspi, editcpi)
+          .send({ from: accounts[0] })
+          .then(
+            this.setState({
+              editcpi: null,
+              editsem2: null,
+              editspi: null
+            })
+          );
+      }
+    } else {
+      if (editspi !== "" || editsem2!== 0 || editcpi !== "" || editstudentId !== "" ) {
+        let dummyPoints;
+
+        contract.methods
+          .getPointsHash(editstudentId, editsem2)
+          .call()
+          .then(hash => {
+            contract.methods
+              .getPoints(hash)
+              .call()
+              .then(res => {
+                console.log(res);
+                dummyPoints = {
+                  semester: res[1],
+                  spi: res[2],
+                  cpi: res[3]
+                };
+                this.setState({ dummyPoints });
+                this.setState({
+                  editcpi: res[3],
+                  editspi: res[2]
+                });
+                console.log(res[3], res[2]);
+              });
+          });
+      } else {
+        this.setState({ activeStepPoint: 0 });
+      }
+    }
+  };
+
+  modifyGradeMethod = async () => {
+    const {
+      accounts,
+      editcId,
+      editcGrade,
+      editsem,
+      contract,
+      activeStepCourse,
+      editstudentId
+    } = this.state;
+
+    const steps = getStepsCourse();
+
+    this.setState(state => ({
+      activeStepCourse: state.activeStepCourse + 1
+    }));
+
+    if (activeStepCourse === steps.length - 1) {
+      if (
+        editcId === "" ||
+        editcGrade === "" ||
+        editstudentId === 0 ||
+        editsem === 0
+      ) {
+      } else {
+        contract.methods
+          .changeCourseGrade( editstudentId, editcId, editsem, editcGrade)
+          .send({ from: accounts[0] })
+          .then(
+            this.setState({
+              editcId: null,
+              editsem: null,
+              editcGrade: null
+            })
+          );
+      }
+    } else {
+      if (editcId !== null || editsem!== 0 || editcGrade !== "" || editstudentId !== "" ) {
+        let dummyGrade;
+
+        contract.methods
+          .getCourseGradeHash(editstudentId, editcId, editsem)
+          .call()
+          .then(hash => {
+            contract.methods
+              .getCourseGrade(hash)
+              .call()
+              .then(res => {
+                console.log(res);
+                dummyGrade = {
+                  courseId: res[1],
+                  semester: res[2],
+                  grade: res[3]
+                };
+                this.setState({ dummyGrade });
+                this.setState({
+                  editcGrade: res[3]
+                });
+                console.log(res[3]);
+              });
+          });
+      } else {
+        this.setState({ activeStepCourse: 0 });
+      }
+    }
+  };
+
   modifyStudentMethod = async () => {
     const {
       accounts,
@@ -1006,6 +1142,18 @@ class Main extends React.Component {
   };
   handleClose5 = () => {
     this.setState({ open5: false });
+    this.setState({
+      editstudentId: "",
+      editstudnetName: "",
+      editdptType: "",
+      editbatchYear: "",
+      editcId: "",
+      editcGrade: "",
+      editsem: "",
+      editsem2: "",
+      editspi: "",
+      editcpi: ""
+    })
   };
 
   handleClose6 = () => {
@@ -2048,7 +2196,7 @@ class Main extends React.Component {
                         ) : (
                           <div>
                             <Typography className={classes.instructions}>
-                              {getStepContent(activeStepStudent)}
+                              {getStepContentStudent(activeStepStudent)}
                             </Typography>
                             <div>
                               <Button
@@ -2075,7 +2223,7 @@ class Main extends React.Component {
 
                     <Card
                       className={classes.card}
-                      style={{ marginTop: 50, height: 700, width: 350 }}
+                      style={{ marginTop: 50, height: 750, width: 350 }}
                     >
                       <CardContent>
                         <Typography
@@ -2133,7 +2281,7 @@ class Main extends React.Component {
                         <TextField
                           required
                           select
-                          disabled={activeStepCourse === 0}
+                          disabled={activeStepCourse === 1}
                           margin="dense"
                           id="semester1"
                           label="Semester"
@@ -2205,7 +2353,7 @@ class Main extends React.Component {
                         ) : (
                           <div>
                             <Typography className={classes.instructions}>
-                              {getStepContent(activeStepCourse)}
+                              {getStepContentCourse(activeStepCourse)}
                             </Typography>
                             <div>
                               <Button
@@ -2218,7 +2366,7 @@ class Main extends React.Component {
                               <Button
                                 variant="contained"
                                 color="primary"
-                                // onClick={this.m}
+                                onClick={this.modifyGradeMethod}
                               >
                                 {activeStepCourse === steps.length - 1
                                   ? "Finish"
@@ -2232,7 +2380,7 @@ class Main extends React.Component {
 
                     <Card
                       className={classes.card}
-                      style={{ marginTop: 50, height: 700, width: 350 }}
+                      style={{ marginTop: 50, height: 750, width: 350 }}
                     >
                       <CardContent>
                         <Typography
@@ -2340,7 +2488,7 @@ class Main extends React.Component {
                         ) : (
                           <div>
                             <Typography className={classes.instructions}>
-                              {getStepContent(activeStepPoint)}
+                              {getStepContentPoint(activeStepPoint)}
                             </Typography>
                             <div>
                               <Button
@@ -2353,7 +2501,7 @@ class Main extends React.Component {
                               <Button
                                 variant="contained"
                                 color="primary"
-                                // onClick={this.m}
+                                onClick={this.modifyPoints}
                               >
                                 {activeStepPoint === steps.length - 1
                                   ? "Finish"
