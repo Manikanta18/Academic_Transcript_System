@@ -180,6 +180,10 @@ const styles = theme => ({
 
   menu: {
     width: 200
+  },
+  transcriptCard: {
+    width: 1300,
+    marginBottom: 50
   }
 });
 
@@ -413,6 +417,32 @@ class Main extends React.Component {
       semester6: [],
       semester7: [],
       semester8: [],
+      spi1: "",
+      cpi1: "",
+      spi2: "",
+      cpi2: "",
+      spi3: "",
+      cpi3: "",
+      spi4: "",
+      cpi4: "",
+      spi5: "",
+      cpi5: "",
+      spi6: "",
+      cpi6: "",
+      spi7: "",
+      cpi7: "",
+      spi8: "",
+      cpi8: "",
+
+      idx1: 0,
+      idx2: 0,
+      idx3: 0,
+      idx4: 0,
+      idx5: 0,
+      idx6: 0,
+      idx7: 0,
+      idx8: 0,
+      idx9: 0,
 
       getStudentId: null,
       getStudentIdHash: null,
@@ -935,7 +965,7 @@ class Main extends React.Component {
 
   getPoints = async () => {
     const { contract, studentTranscriptHash } = this.state;
-    let getPointRows = [];
+    // let getPointRows = [];
 
     contract.methods
       .getStudentId(studentTranscriptHash)
@@ -943,13 +973,11 @@ class Main extends React.Component {
       .then(sid => {
         for (let i = 0; i < 8; i++) {
           let studentId = sid;
-          console.log(studentId);
 
           contract.methods
             .getPointsHash(studentId, i + 1)
             .call()
             .then(value => {
-              console.log(value);
               contract.methods
                 .getPoints(value)
                 .call()
@@ -961,19 +989,60 @@ class Main extends React.Component {
                     res[3] === ""
                   ) {
                   } else {
-                    getPointRows[this.state.index2] = {
-                      id: this.state.index2,
-                      studentId: res[0],
-                      semester: res[1],
-                      spi: res[2],
-                      cpi: res[3]
-                    };
-                    console.log(getPointRows[this.state.index2]);
-                    console.log(this.state.index2);
-                    this.setState({
-                      getPointRows,
-                      index2: this.state.index2 + 1
-                    });
+                    // getPointRows[this.state.index2] = {
+                    //   id: this.state.index2,
+                    //   studentId: res[0],
+                    //   semester: res[1],
+                    //   spi: res[2],
+                    //   cpi: res[3]
+                    // };
+
+                    if (res[1] === "1") {
+                      this.setState({
+                        spi1: res[2],
+                        cpi1: res[3]
+                      });
+                    } else if (res[1] === "2") {
+                      this.setState({
+                        spi2: res[2],
+                        cpi2: res[3]
+                      });
+                    } else if (res[1] === "3") {
+                      this.setState({
+                        spi3: res[2],
+                        cpi3: res[3]
+                      });
+                    } else if (res[1] === "4") {
+                      this.setState({
+                        spi4: res[2],
+                        cpi4: res[3]
+                      });
+                    } else if (res[1] === "5") {
+                      this.setState({
+                        spi5: res[2],
+                        cpi5: res[3]
+                      });
+                    } else if (res[1] === "6") {
+                      this.setState({
+                        spi6: res[2],
+                        cpi6: res[3]
+                      });
+                    } else if (res[1] === "7") {
+                      this.setState({
+                        spi7: res[2],
+                        cpi7: res[3]
+                      });
+                    } else if (res[1] === "8") {
+                      this.setState({
+                        spi8: res[2],
+                        cpi8: res[3]
+                      });
+                    }
+
+                    // this.setState({
+                    //   getPointRows,
+                    //   index2: this.state.index2 + 1
+                    // });
                   }
                 });
             });
@@ -983,7 +1052,15 @@ class Main extends React.Component {
 
   getCourseGrades = async () => {
     const { contract, studentTranscriptHash, course_rows } = this.state;
-    let getGradeRows = [];
+    // let getGradeRows = [];
+    let semester1 = [];
+    let semester2 = [];
+    let semester3 = [];
+    let semester4 = [];
+    let semester5 = [];
+    let semester6 = [];
+    let semester7 = [];
+    let semester8 = [];
 
     contract.methods
       .getStudentId(studentTranscriptHash)
@@ -1008,44 +1085,135 @@ class Main extends React.Component {
                       res[3] === ""
                     ) {
                     } else {
-                      getGradeRows[this.state.indexx] = {
-                        id: this.state.indexx,
-                        studentId: res[0],
-                        courseId: res[1],
-                        semester: res[2],
-                        grade: res[3]
-                      };
+                      // getGradeRows[this.state.indexx] = {
+                      //   id: this.state.indexx,
+                      //   studentId: res[0],
+                      //   semester: res[2],
+                      //   courseId: res[1],
+                      //   courseName: course_rows[j].courseName,
+                      //   courseCredits: course_rows[j].courseCredits,
+                      //   grade: res[3]
+                      // };
+                      if (res[2] === "1") {
+                        semester1[this.state.idx1] = {
+                          id: this.state.idx1,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "2") {
+                        semester2[this.state.idx2] = {
+                          id: this.state.idx2,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "3") {
+                        semester3[this.state.idx3] = {
+                          id: this.state.idx3,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "4") {
+                        semester4[this.state.idx4] = {
+                          id: this.state.idx4,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "5") {
+                        semester5[this.state.idx5] = {
+                          id: this.state.idx5,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "6") {
+                        semester6[this.state.idx6] = {
+                          id: this.state.idx6,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "7") {
+                        semester7[this.state.idx7] = {
+                          id: this.state.idx7,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      } else if (res[2] === "8") {
+                        semester8[this.state.idx8] = {
+                          id: this.state.idx8,
+                          courseId: res[1],
+                          courseName: course_rows[j].courseName,
+                          courseCredits: course_rows[j].courseCredits,
+                          grade: res[3]
+                        };
+                      }
 
                       this.setState({
-                        getGradeRows,
-                        indexx: this.state.indexx + 1
+                        // getGradeRows,
+                        // indexx: this.state.indexx + 1,
+                        idx1: this.state.idx1 + 1,
+                        idx2: this.state.idx2 + 1,
+                        idx3: this.state.idx3 + 1,
+                        idx4: this.state.idx4 + 1,
+                        idx5: this.state.idx5 + 1,
+                        idx6: this.state.idx6 + 1,
+                        idx7: this.state.idx7 + 1,
+                        idx8: this.state.idx8 + 1,
+                        semester1,
+                        semester2,
+                        semester3,
+                        semester4,
+                        semester5,
+                        semester6,
+                        semester7,
+                        semester8
                       });
                     }
                   });
               });
           }
         }
-      });
+      })
+      // .finally(() => {
+      //   this.setState({
+      //     getGradeRows: getGradeRows
+      //   });
+      // });
   };
 
   getTranscript = async () => {
     let student_details = [];
     const { contract, studentTranscriptHash } = this.state;
 
-    contract.methods
-      .getStudentDetails(studentTranscriptHash)
-      .call()
-      .then(res => {
-        student_details = {
-          studentId: res[0],
-          studentName: res[1],
-          dptType: res[2],
-          batchYear: res[3]
-        };
-        this.setState({ student_details });
-      })
-      .then(this.getCourseGrades)
-      .then(this.getPoints);
+    if (studentTranscriptHash === "" || studentTranscriptHash === null) {
+    } else {
+      contract.methods
+        .getStudentDetails(studentTranscriptHash)
+        .call()
+        .then(res => {
+          student_details = {
+            studentId: res[0],
+            studentName: res[1],
+            dptType: res[2],
+            batchYear: res[3]
+          };
+          this.setState({ student_details });
+        })
+        .then(this.getCourseGrades)
+        .then(this.getPoints);
+    }
   };
 
   // add course button
@@ -1169,7 +1337,25 @@ class Main extends React.Component {
       getGradeRows: [],
       getPointRows: [],
       student_details: "",
-      studentTranscriptHash: ""
+      studentTranscriptHash: "",
+      semester1: [],
+      semester2: [],
+      semester3: [],
+      semester4: [],
+      semester5: [],
+      semester6: [],
+      semester7: [],
+      semester8: [],
+      pointRow: [],
+      i1: 0,
+      i2: 0,
+      i3: 0,
+      i4: 0,
+      i5: 0,
+      i6: 0,
+      i7: 0,
+      i8: 0,
+      i9: 0
     });
   };
 
@@ -1255,9 +1441,17 @@ class Main extends React.Component {
       semPointsRows,
       courseGradeRows,
       courses,
-      getGradeRows,
-      getPointRows,
-      student_details
+      // getGradeRows,
+      // getPointRows,
+      student_details,
+      semester1,
+      semester2,
+      semester3,
+      semester4,
+      semester5,
+      semester6,
+      semester7,
+      semester8
     } = this.state;
     return (
       <Grid
@@ -1649,7 +1843,7 @@ class Main extends React.Component {
                     container
                     direction="row"
                     justify="center"
-                    alignItems="center"
+                    alignItems="flex-start"
                     style={{ backgroundColor: "#eeeeee", height: "500%" }}
                   >
                     <Card className={classes.card} style={{ marginTop: 50 }}>
@@ -2624,7 +2818,7 @@ class Main extends React.Component {
                     container
                     direction="row"
                     justify="center"
-                    alignItems="center"
+                    alignItems="flex-start"
                     style={{ backgroundColor: "#eeeeee", height: "500%" }}
                   >
                     <TextField
@@ -2635,7 +2829,12 @@ class Main extends React.Component {
                       label="Student Hash"
                       type="nutextmber"
                       variant="filled"
-                      style={{ margin: 25, width: 750, height: 100 }}
+                      style={{
+                        margin: 25,
+                        width: 750,
+                        height: 100,
+                        marginTop: 50
+                      }}
                       value={this.state.studentTranscriptHash}
                       onChange={this.handleChange("studentTranscriptHash")}
                       InputLabelProps={{
@@ -2652,7 +2851,7 @@ class Main extends React.Component {
                           backgroundColor: "#0d47a1",
                           margin: 50,
                           height: 55,
-                          marginTop: 5,
+                          marginTop: 50,
                           width: 250
                         }}
                         onClick={this.getTranscript}
@@ -2661,149 +2860,688 @@ class Main extends React.Component {
                         <GetIcon className={classes.rightIcon} />
                       </Button>
                     </div>
+
                     <br />
 
-                    <Paper
-                      className={classes.root1}
-                      style={{ marginTop: 80, width: 800 }}
-                    >
-                      <Typography
-                        variant="h5"
-                        component="h3"
-                        style={{ margin: 10, padding: 10 }}
+                    <Card className={classes.transcriptCard}>
+                      <Grid
+                        container
+                        direction="row"
+                        justify="center"
+                        alignItems="flex-start"
                       >
-                        Student Details
-                      </Typography>
-                      <Table className={classes.table1}>
-                        <TableHead>
-                          <TableRow>
-                            <CustomTableCell align="left">
-                              Student Id
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              Student name
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              Department
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              Batch
-                            </CustomTableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          <TableRow className={classes.row}>
-                            <CustomTableCell align="left">
-                              {student_details.studentId}
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              {student_details.studentName}
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              {student_details.dptType}
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              {student_details.batchYear}
-                            </CustomTableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </Paper>
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 80, width: 1000 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 10 }}
+                          >
+                            Student Details
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Student Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Student name
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Department
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Batch
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              <TableRow className={classes.row}>
+                                <CustomTableCell align="left">
+                                  {student_details.studentId}
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  {student_details.studentName}
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  {student_details.dptType}
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  {student_details.batchYear}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
 
-                    <Paper
-                      className={classes.root1}
-                      style={{ marginTop: 80, width: 800 }}
-                    >
-                      <Typography
-                        variant="h5"
-                        component="h3"
-                        style={{ margin: 10, padding: 10 }}
-                      >
-                        Course Grades
-                      </Typography>
-                      <Table className={classes.table1}>
-                        <TableHead>
-                          <TableRow>
-                            <CustomTableCell align="left">
-                              Student Id
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              Semester
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              Course Id
-                            </CustomTableCell>
-                            <CustomTableCell align="center">
-                              Course Grade
-                            </CustomTableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {getGradeRows.map(row => (
-                            <TableRow className={classes.row} key={row.id}>
-                              <CustomTableCell align="left">
-                                {row.studentId}
-                              </CustomTableCell>
-                              <CustomTableCell align="left">
-                                {row.semester}
-                              </CustomTableCell>
-                              <CustomTableCell align="left">
-                                {row.courseId}
-                              </CustomTableCell>
-                              <CustomTableCell align="center">
-                                {row.grade}
-                              </CustomTableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </Paper>
-                    <Paper
-                      className={classes.root1}
-                      style={{ marginTop: 80, width: 800 }}
-                    >
-                      <Typography
-                        variant="h5"
-                        component="h3"
-                        style={{ margin: 10, padding: 10 }}
-                      >
-                        Semester Points
-                      </Typography>
-                      <Table className={classes.table1}>
-                        <TableHead>
-                          <TableRow>
-                            <CustomTableCell align="left">
-                              Student Id
-                            </CustomTableCell>
-                            <CustomTableCell align="left">
-                              Semester
-                            </CustomTableCell>
-                            <CustomTableCell align="left">SPI</CustomTableCell>
-                            <CustomTableCell align="center">
-                              CPI
-                            </CustomTableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {getPointRows.map(row => (
-                            <TableRow className={classes.row} key={row.id}>
-                              <CustomTableCell align="left">
-                                {row.studentId}
-                              </CustomTableCell>
-                              <CustomTableCell align="left">
-                                {row.semester}
-                              </CustomTableCell>
-                              <CustomTableCell align="left">
-                                {row.spi}
-                              </CustomTableCell>
-                              <CustomTableCell align="center">
-                                {row.cpi}
-                              </CustomTableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </Paper>
+                        {/* <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 80, width: 800 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 10 }}
+                          >
+                            Course Grades
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Student Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Semester
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {getGradeRows.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.studentId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.semester}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Paper>
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 80, width: 800 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 10 }}
+                          >
+                            Semester Points
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Student Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Semester
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  CPI
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {getPointRows.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.studentId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.semester}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.spi}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.cpi}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </Paper> */}
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester I
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester1.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                              <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi1}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi1}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester II
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester2.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi2}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi2}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester III
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester3.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                {/* <CustomTableCell rowSpan={3} /> */}
+                                <CustomTableCell colspan="3">
+                                  <Typography variant="title" gutterBottom>
+                                      SPI
+                                  </Typography>
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  <bold>{this.state.spi3}</bold>
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colspan="3">
+                                  <bold>CPI</bold>
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  <bold> {this.state.cpi3}</bold>
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester IV
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester4.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi4}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi4}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester V
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester5.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi5}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi5}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester VI
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester6.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi6}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi6}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester VII
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester7.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi7}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi7}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+
+                        <Paper
+                          className={classes.root1}
+                          style={{ marginTop: 40, width: 550 }}
+                        >
+                          <Typography
+                            variant="subheading"
+                            style={{ margin: 10, padding: 5 }}
+                          >
+                            Semester VIII
+                          </Typography>
+                          <Table className={classes.table1}>
+                            <TableHead>
+                              <TableRow>
+                                <CustomTableCell align="left">
+                                  Course Id
+                                </CustomTableCell>
+                                <CustomTableCell align="left">
+                                  Course Name
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  Course Credits
+                                </CustomTableCell>
+                                <CustomTableCell align="center">
+                                  Course Grade
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {semester8.map(row => (
+                                <TableRow className={classes.row} key={row.id}>
+                                  <CustomTableCell align="left">
+                                    {row.courseId}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="left">
+                                    {row.courseName}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="right">
+                                    {row.courseCredits}
+                                  </CustomTableCell>
+                                  <CustomTableCell align="center">
+                                    {row.grade}
+                                  </CustomTableCell>
+                                </TableRow>
+                              ))}
+
+                              <TableRow>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.spi8}
+                                </CustomTableCell>
+                              </TableRow>
+                              <TableRow>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
+                                </CustomTableCell>
+                                <CustomTableCell align="right">
+                                  {this.state.cpi8}
+                                </CustomTableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </Paper>
+                      </Grid>
+                    </Card>
                   </Grid>
                 </Dialog>
               </div>
