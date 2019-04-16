@@ -1296,22 +1296,6 @@ class Main extends React.Component {
 
   handleClose4 = () => {
     this.setState({ open4: false });
-    this.setState({
-      courseGradeRows: [],
-      semPointsRows: [],
-      courseIndex: 0,
-      semIndex: 0,
-      studentId: null,
-      studnetName: null,
-      dptType: null,
-      batchYear: null,
-      cId: null,
-      cGrade: null,
-      sem: null,
-      sem2: null,
-      cpi: null,
-      spi: null
-    });
   };
   handleClose5 = () => {
     this.setState({ open5: false });
@@ -1425,6 +1409,25 @@ class Main extends React.Component {
       editsem2: null,
       editspi: null,
       editcpi: null
+    });
+  };
+
+  handleResetTranscript = () => {
+    this.setState({
+      courseGradeRows: [],
+      semPointsRows: [],
+      courseIndex: 0,
+      semIndex: 0,
+      studentId: null,
+      studnetName: null,
+      dptType: null,
+      batchYear: null,
+      cId: null,
+      cGrade: null,
+      sem: null,
+      sem2: null,
+      cpi: null,
+      spi: null
     });
   };
 
@@ -2149,8 +2152,25 @@ class Main extends React.Component {
                         color="primary"
                         className={classes.button}
                         style={{
+                          // backgroundColor: "#2e7d32",
+                          marginTop: 5,
+                          width: 250,
+                          height: 50
+                        }}
+                        onClick={this.handleResetTranscript}
+                      >
+                        Reset
+                        <AddCircle className={classes.rightIcon} />
+                      </Button>
+
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        className={classes.button}
+                        style={{
                           backgroundColor: "#2e7d32",
                           marginTop: 5,
+                          margin: 30,
                           width: 350,
                           height: 50
                         }}
