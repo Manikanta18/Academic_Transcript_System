@@ -183,7 +183,7 @@ const styles = theme => ({
     width: 200
   },
   transcriptCard: {
-    width: 1300,
+    width: 1340,
     marginBottom: 50
   }
 });
@@ -2876,12 +2876,19 @@ class Main extends React.Component {
                           alt="IIITV"
                           style={{ marginTop: 50 }}
                         />
-                        <Typography
-                          variant="subheading"
-                          style={{ fontWeight: "bold" }}
+                        <Grid
+                          container
+                          direction="row"
+                          justify="center"
+                          alignItems="flex-start"
                         >
-                          STUDENT TRANSCRIPT
-                        </Typography>
+                          <Typography
+                            variant="subheading"
+                            style={{ fontWeight: "bold" }}
+                          >
+                            STUDENT TRANSCRIPT
+                          </Typography>
+                        </Grid>
                         <Paper
                           className={classes.root1}
                           style={{ marginTop: 80, width: 1000 }}
