@@ -34,6 +34,7 @@ import StepLabel from "@material-ui/core/StepLabel";
 import getWeb3 from "../utils/getWeb3";
 import Transcript from "../contracts/Transcript.json";
 import randomstring from "randomstring";
+import iiitvImg from "./full_iiitv.png";
 
 // table
 const CustomTableCell = withStyles(theme => ({
@@ -1185,12 +1186,12 @@ class Main extends React.Component {
               });
           }
         }
-      })
-      // .finally(() => {
-      //   this.setState({
-      //     getGradeRows: getGradeRows
-      //   });
-      // });
+      });
+    // .finally(() => {
+    //   this.setState({
+    //     getGradeRows: getGradeRows
+    //   });
+    // });
   };
 
   getTranscript = async () => {
@@ -2870,6 +2871,17 @@ class Main extends React.Component {
                         justify="center"
                         alignItems="flex-start"
                       >
+                        <img
+                          src={iiitvImg}
+                          alt="IIITV"
+                          style={{ marginTop: 50 }}
+                        />
+                        <Typography
+                          variant="subheading"
+                          style={{ fontWeight: "bold" }}
+                        >
+                          STUDENT TRANSCRIPT
+                        </Typography>
                         <Paper
                           className={classes.root1}
                           style={{ marginTop: 80, width: 1000 }}
@@ -3013,7 +3025,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3025,7 +3037,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3057,7 +3069,7 @@ class Main extends React.Component {
                               ))}
 
                               <TableRow>
-                              <CustomTableCell rowSpan={3} />
+                                <CustomTableCell rowSpan={3} />
                                 <CustomTableCell colSpan={0}>
                                   SPI
                                 </CustomTableCell>
@@ -3079,7 +3091,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3091,7 +3103,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3145,7 +3157,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3157,7 +3169,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3189,22 +3201,20 @@ class Main extends React.Component {
                               ))}
 
                               <TableRow>
-                                {/* <CustomTableCell rowSpan={3} /> */}
-                                <CustomTableCell colspan="3">
-                                  <Typography variant="title" gutterBottom>
-                                      SPI
-                                  </Typography>
+                                <CustomTableCell rowSpan={3} />
+                                <CustomTableCell colSpan={0}>
+                                  SPI
                                 </CustomTableCell>
                                 <CustomTableCell align="right">
-                                  <bold>{this.state.spi3}</bold>
+                                  {this.state.spi3}
                                 </CustomTableCell>
                               </TableRow>
                               <TableRow>
-                                <CustomTableCell colspan="3">
-                                  <bold>CPI</bold>
+                                <CustomTableCell colSpan={1}>
+                                  CPI
                                 </CustomTableCell>
                                 <CustomTableCell align="right">
-                                  <bold> {this.state.cpi3}</bold>
+                                  {this.state.cpi3}
                                 </CustomTableCell>
                               </TableRow>
                             </TableBody>
@@ -3213,7 +3223,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3225,7 +3235,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3279,7 +3289,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3291,7 +3301,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3345,7 +3355,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3357,7 +3367,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3411,7 +3421,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3423,7 +3433,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
@@ -3477,7 +3487,7 @@ class Main extends React.Component {
 
                         <Paper
                           className={classes.root1}
-                          style={{ marginTop: 40, width: 550 }}
+                          style={{ marginTop: 20, width: 550 }}
                         >
                           <Typography
                             variant="subheading"
@@ -3489,7 +3499,7 @@ class Main extends React.Component {
                             <TableHead>
                               <TableRow>
                                 <CustomTableCell align="left">
-                                  Course Id
+                                  Course ID
                                 </CustomTableCell>
                                 <CustomTableCell align="left">
                                   Course Name
